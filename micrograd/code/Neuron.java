@@ -1,6 +1,7 @@
 // has n amount of weights, 1 bias. 
 // n is the amount of inputs.
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class Neuron {
@@ -73,11 +74,14 @@ class Layer {
         return output;
     }
 
-    // public double[] parameters() {
-    //     double[] output = Arrays.copyOf(this.weights, this.weights.length + 1); // copyOf(arraytype[] original, int newLength)
-    //     output[this.weights.length] = this.bias; // add bias as the last index
-    //     return output;
-    // }
+    public double[][] parameters() {
+        double[][] output = new double[this.neurons.length][this.neurons[0].weights.length]; // copyOf(arraytype[] original, int newLength)
+        
+        for (int i = 0; i < output.length; i++) {
+            output[i] = this.neurons[i];
+        }
+        return output;
+    }
     // @Override
     // public String toString() {
     //     String type = this.nonlinear ? "ReLU" : "Linear";
