@@ -44,6 +44,7 @@ $$ \sigma(x) = \frac{1}{1 + e^{-x}} $$
 * GELU
 
 $$ \begin{align} & \mathrm{GELU}(x) = x \, \Phi(x)  =  \frac{x}{2}\left[1 + \operatorname{erf}\!\left(\frac{x}{\sqrt{2}}\right)\right] \\
-& \mathrm{GELU}(x)  \approx 0.5x \left(1 + \tanh\!\left[\sqrt{\frac{2}{\pi}}\left(x + 0.044715x^{3}\right)\right]\right)
+& \mathrm{GELU}(x)  \approx 0.5x \left(1 + \tanh\!\left[\sqrt{\frac{2}{\pi}}\left(x + 0.044715x^{3}\right)\right]\right) \\
 
+& \mathrm{GEGLU}(x) = x\sigma(x) + \mathrm{GELU}(x)
 \end{align}$$
