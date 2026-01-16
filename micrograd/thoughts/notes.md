@@ -1,10 +1,8 @@
 # micrograd
 
-
 <p align="center">
   <img src="./Images/thumbnail.png" alt="intro image" width="300">
 </p>
-
 
 * Ideas on backpropogation chain rule to obtain partial derivatives
 * Using individual partial derivatives (gradient) to minimize loss by shifting biases and weights.
@@ -48,3 +46,36 @@ $$ \begin{align} & \mathrm{GELU}(x) = x \, \Phi(x)  =  \frac{x}{2}\left[1 + \ope
 
 & \mathrm{GEGLU}(x) = x\sigma(x) + \mathrm{GELU}(x)
 \end{align}$$
+
+
+# MLP Engine
+
+## Neuron testing
+
+```java
+public static void NeuronTesting(){
+  double[] inputs = {1, 2, 3, 4, 5};
+  Neuron n = new Neuron(inputs.length);
+  System.out.println(n.call(inputs));
+  System.out.println(n);
+
+  System.out.println("\n Parameters:");
+  for(double params : n.parameters()) {
+      System.out.println(params);
+  }
+}
+
+```
+
+## Layer Testing
+
+```java
+public static void LayerTesting() {
+  double[] inputs = {1, 2, 3, 4, 5};
+  Layer l = new Layer(5, 2, true); // 5 inputs 2 neurons
+
+  System.out.println(Arrays.toString(l.call(inputs)));
+  System.out.println(Arrays.deepToString(l.parameters()));
+  System.out.println(l);
+}
+```

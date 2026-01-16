@@ -3,23 +3,19 @@ import java.util.Arrays;
 public class testing {
 
     public static void main(String[] args) {
-        double[][] test = {{1},{2}};
-        System.out.println(Arrays.deepToString(test));
-        // Value a = new Value(1);
-        // Value b = new Value(5);
+        double[] inputs = {1, 2, 3, 4, 5};
+        Layer l = new Layer(5, 2, true); // 5 inputs 2 neurons
 
-        // Value c = a.add(b);
+        System.out.println(Arrays.toString(l.call(inputs)));
+        // System.out.println(Arrays.deepToString(l.parameters()));
+        // System.out.println(l);
+    }
 
-        // System.out.println(c.grad);
+    public static void ValueTesting() {
+        Value a = new Value(1);
+        Value b = new Value(5);
 
-        // double[] inputs = {1, 2, 3, 4, 5};
-        // Neuron n = new Neuron(inputs.length);
-        // System.out.println(n.call(inputs));
-        // System.out.println(n);
-
-        // System.out.println("\n Parameters:");
-        // for(double params : n.parameters()){
-        //     System.out.println(params);
-        // }
+        Value c = a.add(b);
+        System.out.println(c.grad);
     }
 }

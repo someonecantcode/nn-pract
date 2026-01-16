@@ -2,7 +2,7 @@
 // n is the amount of inputs.
 import java.util.Arrays;
 
-public class Neuron {
+class Neuron {
     double[] weights;
     double bias;
     boolean nonlinear;
@@ -10,7 +10,9 @@ public class Neuron {
     public Neuron(int totalinput, boolean nonlinear) {
         weights = new double[totalinput];
         for (int i = 0; i < weights.length; i++) {
-            weights[i] = Math.random(); // fill weights with random double from 0.0 to 1.0
+            weights[i] = (Math.random()*2)-1; // fill weights with random double from -1.0 to 1.0
+            // Math.random returns 0.0 - 1.0. We double it so it's range is from 0.0 to 2.0 and offset it to get -1.0 to 1.0.
+            // optimized weights[i] = ThreadLocalRandom.current().nextDouble(-1.0, 1.0);
         }
         this.bias = 0;
         this.nonlinear = nonlinear;
@@ -47,7 +49,7 @@ public class Neuron {
     }
 }
 
-class Layer {
+public class Layer {
     Neuron[] neurons;
 
     public Layer(int totalinput, int totaloutput, boolean nonlinear) { // later use varargs for more hyperparams
@@ -64,7 +66,6 @@ class Layer {
     public double[] call(double[] input) {
 
         double[] output = new double[this.neurons.length];
-
         for (int i = 0; i < this.neurons.length; i++) {
             output[i] = this.neurons[i].call(input); // basically grab each neuron parameters. no reference, just a copy.
         }
@@ -129,4 +130,24 @@ class MLP {
         // }
     }
 
+    public double[] call(double[] input) { // forward pass -> output of the last layer
+        double[] output = Arrays.copyOf(input, input.length); // double[] output = new output[input.length] System.arraycopy(input, 0, output, 0, input.length)
+
+        
+        // forward pass
+        for (int i = 0; i < this.layers.length; i++) {
+            // size issue. turn into arraylist?
+            output = this.layers[i].call(output);
+        }
+        return output;
+    }
+
+    public double[][][] parameters() {
+        return new double[][][] {};
+    }
+
+    @Override
+    public String toString(){
+        return "wip";
+    }
 }
