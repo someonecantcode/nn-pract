@@ -1,7 +1,7 @@
-// has n amount of weights, 1 bias. 
-// n is the amount of inputs.
 import java.util.Arrays;
 
+// has n amount of weights, 1 bias. 
+// n is the amount of inputs.
 class Neuron {
     double[] weights;
     double bias;
@@ -28,7 +28,7 @@ class Neuron {
 
         double act = 0;
         for (int i = 0; i < input.length; i++) {
-            act += this.weights[0] * input[0]; // dot product weights @ input.
+            act += this.weights[i] * input[i]; // dot product weights @ input.
         }
 
         act += this.bias;
@@ -64,7 +64,6 @@ public class Layer {
     }
 
     public double[] call(double[] input) {
-
         double[] output = new double[this.neurons.length];
         for (int i = 0; i < this.neurons.length; i++) {
             output[i] = this.neurons[i].call(input); // basically grab each neuron parameters. no reference, just a copy.
@@ -132,17 +131,25 @@ class MLP {
 
     public double[] call(double[] input) { // forward pass -> output of the last layer
         double[] output = Arrays.copyOf(input, input.length); // double[] output = new output[input.length] System.arraycopy(input, 0, output, 0, input.length)
-
         
         // forward pass
         for (int i = 0; i < this.layers.length; i++) {
-            // size issue. turn into arraylist?
+            // no size issue when you just reassign it :)
             output = this.layers[i].call(output);
         }
-        return output;
+        return output; // last layer
     }
 
     public double[][][] parameters() {
+        /*
+        {
+         L0 { {weight, bias}, ... ,{weight, bias} }
+         L1 ...
+         L2 ...
+        }
+        */
+
+        double[][][] output = new double[this.layers.length][][];
         return new double[][][] {};
     }
 
