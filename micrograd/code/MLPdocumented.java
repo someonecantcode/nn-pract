@@ -18,11 +18,11 @@ class Neuron {
         this.nonlinear = nonlinear;
     }
 
-    public Neuron(int totalinput) { // for optional nonlinear parameter
+    public Neuron(int totalinput) { // for optional nonlinear=true parameter
         this(totalinput, true); // call neuron constructor
     }
 
-    //activation
+    // activation
     public double call(double[] input) {
         assert weights.length == input.length : "input size must the be same as weights size: " + weights.length;
 
@@ -49,7 +49,7 @@ class Neuron {
     }
 }
 
-public class Layer {
+class Layer {
     Neuron[] neurons;
 
     public Layer(int totalinput, int totaloutput, boolean nonlinear) { // later use varargs for more hyperparams
@@ -85,13 +85,13 @@ public class Layer {
     }
 }
 
-class MLP {
+public class MLPdocumented {
     Layer[] layers;
 
     // input 2 -> numberoutputs [16,16,1]. Layers: [2, 16] -> [16, 16] -> [16, 1] 
     // we count the input layer as layer 0. we say this is a "2 layer mlp"
-    public MLP(int numberinputs, int[] numberoutputs) { 
-        layers = new Layer[numberoutputs.length + 1];
+    public MLPdocumented(int numberinputs, int[] numberoutputs) { 
+        this.layers = new Layer[numberoutputs.length];
 
         // creating [2] [16, 16, 1] -> [2, 16, 16, 1]
         int[] chaining = new int[numberoutputs.length + 1];
@@ -102,8 +102,8 @@ class MLP {
         }
         
         // create layers
-        for(int i = 0; i < numberoutputs.length; i++) {
-            layers[i] =  new Layer(chaining[i], chaining[i+1], (i != numberoutputs.length - 1));
+        for(int i = 0; i < numberoutputs.length; i++) { 
+            this.layers[i] =  new Layer(chaining[i], chaining[i+1], (i != numberoutputs.length - 1));
             /*
             numberoutput = [16, 16, 1]. numberoutput.length = 3
             Layer(2, 16)  ReLU   i = 0
@@ -129,32 +129,27 @@ class MLP {
         // }
     }
 
-    public double[] call(double[] input) { // forward pass -> output of the last layer
-        double[] output = Arrays.copyOf(input, input.length); // double[] output = new output[input.length] System.arraycopy(input, 0, output, 0, input.length)
+    public double[] call(double[] input) {
+        double[] output = Arrays.copyOf(input, input.length); 
+        // double[] output = new output[input.length] System.arraycopy(input, 0, output, 0, input.length)
         
-        // forward pass
+        // forward pass -> output of the last layer
         for (int i = 0; i < this.layers.length; i++) {
-            // no size issue when you just reassign it :)
             output = this.layers[i].call(output);
         }
-        return output; // last layer
+        return output; 
     }
 
     public double[][][] parameters() {
-        /*
-        {
-         L0 { {weight, bias}, ... ,{weight, bias} }
-         L1 ...
-         L2 ...
-        }
-        */
-
         double[][][] output = new double[this.layers.length][][];
-        return new double[][][] {};
+        for(int layerindex = 0; layerindex < output.length; layerindex++) {
+            output[layerindex] = this.layers[layerindex].parameters();            
+        }
+        return output;
     }
 
     @Override
     public String toString(){
-        return "wip";
+        return String.format("MLP of %s", Arrays.deepToString(layers));
     }
 }
