@@ -8,20 +8,50 @@ class Node {
         this.children = new ArrayList<>();
     }
 
-    public Node nextNode(String data) {
+    public Node addChildrenNode(String data) {
         Node next = new Node(data);
         children.add(next);
         return next;
+    }
+
+    public void addChildrenNode(Node n) {
+        children.add(n);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s", this.data);
+    }
+}
+
+class Graph {
+    Node[] nodes;
+
+    public Graph(){
+
     }
 }
 
 public class DFS {
 
     public static void main(String[] args) {
-        
+        testing();
     }
 
-    public Node[] algorithm(Node[] input){
+    public static void testing() {
+        Node A = new Node("A");
+        Node B = A.addChildrenNode("B");
+        Node C = A.addChildrenNode("C");
+
+        B.addChildrenNode(C);
+
+        System.out.println(C);
+        System.out.println(C.children);
+
+        algorithm(A);
+    }
+
+    public static Node[] algorithm(Node input){
         return new Node[] {};
     }
 }
