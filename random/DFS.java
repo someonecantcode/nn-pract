@@ -1,21 +1,26 @@
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 
 class Node {
-    String data; 
-    ArrayList<Node> children;
+
+    String data;
+    ArrayList<Node> prev_children;
+
     public Node(String data) {
         this.data = data;
-        this.children = new ArrayList<>();
+        this.prev_children = new ArrayList<>();
     }
 
     public Node addChildrenNode(String data) {
         Node next = new Node(data);
-        children.add(next);
+        prev_children.add(next);
         return next;
     }
 
     public void addChildrenNode(Node n) {
-        children.add(n);
+        prev_children.add(n);
     }
 
     @Override
@@ -25,9 +30,10 @@ class Node {
 }
 
 class Graph {
+
     Node[] nodes;
 
-    public Graph(){
+    public Graph() {
 
     }
 }
@@ -40,18 +46,46 @@ public class DFS {
 
     public static void testing() {
         Node A = new Node("A");
-        Node B = A.addChildrenNode("B");
-        Node C = A.addChildrenNode("C");
+        Node C = new Node("C");
 
+        Node B = new Node("B");
+        B.addChildrenNode(A);
         B.addChildrenNode(C);
 
-        System.out.println(C);
-        System.out.println(C.children);
+        Node E = new Node("E");
+        Node D = new Node("D");
+        D.addChildrenNode(B);
+        D.addChildrenNode(E);
 
-        algorithm(A);
+        System.out.println(D);
+        System.out.println(D.children);
+
+        System.out.println(algorithm(D));
     }
 
-    public static Node[] algorithm(Node input){
-        return new Node[] {};
+    public static ArrayList<Node> algorithm(Node input) {
+        // dfs works by going deep until there are no more children 
+        // backtracking and repeating. we implement it recursively with the following
+
+        ArrayList<Node> topo = new ArrayList<>(input.prev_children.size());
+        int index = 0;
+        HashSet<String> visited = new HashSet<>();
+
+        DFS(input, topo, visited);
+
+        Collections.reverse(topo); // root -> children for back prop
+        return topo;
+    }
+
+    public static void DFS(Node n, ArrayList<Node> topo, HashSet<String> visisted) {
+        if (!visisted.contains(n.data)) {
+            visisted.add(n.data);
+            for (Node child : n.prev_children) {
+                DFS(child, topo, visisted);
+            }
+
+            topo.add(n);
+        }
+
     }
 }
