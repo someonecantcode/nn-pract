@@ -1,11 +1,19 @@
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 
 public class Value {
     double data;
     double grad = 0;
+    ArrayList<Value> prev_children;
+
+    public Value(double data, ArrayList<Value> prev_children) {
+        this.data = data;
+        this.prev_children = prev_children;
+    }
 
     public Value(double data) {
-        this.data = data;
+        this(data, new ArrayList<Value>());
     }
 
     public Value add(Value b){
@@ -39,23 +47,31 @@ public class Value {
     }
 
 
-    // public void backwards(){
-    //     ArrayList<Integer> topo = new ArrayList<>();
-    //     HashSet<Integer> visited = new HashSet<>();
-    //     void build_topo(Value a){
-    //         if v not in visited{
-    //             visited.add(v)
-    //             for child in v._prev:
-    //                 build_topo(child)
-    //             topo.append(v)
-    //         }    
-    //     }
-    //     build_topo(self)
+    public void backwards(){
+        ArrayList<Value> topo = new ArrayList<>(this.prev_children.size());
+        HashSet<Value> visited = new HashSet<>();
 
-    //     this.grad = 1;
-    //     for v in reversed(topo):
-    //         v._backward()
-    // }
+        DFS(this, topo, visited);
+        this.grad = 1;
+
+        Collections.reverse(topo);
+        for(Value v : topo){
+            v.backwards();
+        }
+    
+    }
+
+    private static void DFS(Value v, ArrayList<Value> topo, HashSet<Value> visisted) {
+        if (!visisted.contains(v)) {
+            visisted.add(v);
+            for (Value child : v.prev_children) {
+                DFS(child, topo, visisted);
+            }
+
+            topo.add(v);
+        }
+
+    }
 
     @Override
     public String toString(){

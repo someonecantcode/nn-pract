@@ -58,7 +58,7 @@ public class DFS {
         D.addChildrenNode(E);
 
         System.out.println(D);
-        System.out.println(D.children);
+        System.out.println(D.prev_children);
 
         System.out.println(algorithm(D));
     }
@@ -68,7 +68,6 @@ public class DFS {
         // backtracking and repeating. we implement it recursively with the following
 
         ArrayList<Node> topo = new ArrayList<>(input.prev_children.size());
-        int index = 0;
         HashSet<String> visited = new HashSet<>();
 
         DFS(input, topo, visited);
