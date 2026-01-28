@@ -5,22 +5,11 @@ public class testing {
 
     public static void main(String[] args) {
         //myTesting();
-
-
+        // ValueTesting();
+        gradientNumericalTest();
     }
 
     public static void myTesting() {
-        double[] testarray;
-        double[] a1 = {1, 2, 3, 4, 5};
-
-        testarray = Arrays.copyOf(a1, a1.length); // idc thats it referenced
-        System.out.println(Arrays.toString(testarray));
-        double[] a2 = {1, 2, 3};
-
-        testarray = Arrays.copyOf(a2, a2.length); // idc thats it referenced
-        System.out.println(Arrays.toString(testarray));
-
-
         double[] inputs = {1, 2, 3, 4, 5};
 
         int[] layerparams = {16, 16, 1};
@@ -36,10 +25,28 @@ public class testing {
     }
 
     public static void ValueTesting() {
+
+        // f.backwards();
+        // System.out.println(f);
+        // System.out.println(f.prev_children);
+    }
+
+    public static void gradientNumericalTest() {
+        double h = 0.001;
+
         Value a = new Value(1);
         Value b = new Value(5);
+        Value c = a.add(b); // 6
+        Value d = new Value(2);
+        Value f1 = c.mult(d); // 6 + 2
 
-        Value c = a.add(b);
-        System.out.println(c.grad);
+        a = new Value(1);
+        b = new Value(5);
+        c = a.add(b); // 6
+        d = new Value(2 + h);
+
+        Value f2 = c.mult(d); // 6 + 2
+        // f = C + D
+        System.out.println((f2.data - f1.data) / h);
     }
 }

@@ -29,15 +29,6 @@ class Node {
     }
 }
 
-class Graph {
-
-    Node[] nodes;
-
-    public Graph() {
-
-    }
-}
-
 public class DFS {
 
     public static void main(String[] args) {
@@ -63,7 +54,7 @@ public class DFS {
         System.out.println(algorithm(D));
     }
 
-    public static ArrayList<Node> algorithm(Node input) {
+    private static ArrayList<Node> algorithm(Node input) {
         // dfs works by going deep until there are no more children 
         // backtracking and repeating. we implement it recursively with the following
 
@@ -76,7 +67,7 @@ public class DFS {
         return topo;
     }
 
-    public static void DFS(Node n, ArrayList<Node> topo, HashSet<String> visisted) {
+    private static void DFS(Node n, ArrayList<Node> topo, HashSet<String> visisted) {
         if (!visisted.contains(n.data)) {
             visisted.add(n.data);
             for (Node child : n.prev_children) {

@@ -1,53 +1,73 @@
+
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
+// refer to https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 public class Value {
+
     double data;
-    double grad = 0;
+    double grad;
     ArrayList<Value> prev_children;
+
+    private Runnable _backward = () -> {
+    };
 
     public Value(double data, ArrayList<Value> prev_children) {
         this.data = data;
         this.prev_children = prev_children;
+        this.grad = 0;
     }
 
     public Value(double data) {
         this(data, new ArrayList<Value>());
     }
 
-    public Value add(Value b){
-        
-        // void backwards() {
-        //     this.grad += b.data;
-        //     b.grad += this.data;
-        // }
-
-        return new Value(this.data + b.data);
+    private ArrayList<Value> inputsToChildren(Value b) {
+        return new ArrayList<Value>(Arrays.asList(this, b));
     }
 
-    public Value neg(Value a){
-        return new Value(-1 * a.data);
+    public Value add(Value b) {
+        Value out = new Value(this.data + b.data, inputsToChildren(b));
+        /*
+        C = A + B
+        del C = 1
+        del A
+
+        f(x) = a(x) + b(x)
+        del f/del a = del f/del b + del a/del b
+
+         */
+        out._backward = () -> {
+            this.grad += 1 * out.grad;
+            b.grad += 1 * out.grad;
+        };
+
+        return out;
     }
 
-    public Value sub(Value b){ // a - b
-        return this.add(neg(b));
+    public Value mult(Value b) {
+        Value out = new Value(this.data * b.data, inputsToChildren(b));
+        out._backward = () -> {
+            this.grad += b.data * out.grad;
+            b.grad += this.data * out.grad;
+        };
+        return out;
     }
-
-    public Value mult(Value b){
-        return new Value(this.data * b.data);
-    }
-
-    public Value pow(Value b){
-        return new Value(Math.pow(this.data, b.data));
-    }
-
-    public Value div(Value b){
-        return this.mult(b.pow(neg(new Value(1))));
-    }
-
-
-    public void backwards(){
+    // public Value neg(Value a) {
+    //     return this.mult(new Value(-1));
+    // }
+    // public Value sub(Value b) { // a - b
+    //     return this.add(neg(b));
+    // }
+    // public Value pow(Value b) {
+    //     return new Value(Math.pow(this.data, b.data));
+    // }
+    // public Value div(Value b) {
+    //     return this.mult(b.pow(neg(new Value(1))));
+    // }
+    public void backwards() {
         ArrayList<Value> topo = new ArrayList<>(this.prev_children.size());
         HashSet<Value> visited = new HashSet<>();
 
@@ -55,10 +75,11 @@ public class Value {
         this.grad = 1;
 
         Collections.reverse(topo);
-        for(Value v : topo){
-            v.backwards();
+        System.out.println(topo);
+        for (Value v : topo) {
+            v._backward.run();
         }
-    
+
     }
 
     private static void DFS(Value v, ArrayList<Value> topo, HashSet<Value> visisted) {
@@ -74,8 +95,8 @@ public class Value {
     }
 
     @Override
-    public String toString(){
-        String output = String.format("Value:    %f \nGradient: %f", this.data, this.grad);
+    public String toString() {
+        String output = String.format("Value: %.3f Gradient: %.3f", this.data, this.grad);
         return output;
     }
 
