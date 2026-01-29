@@ -10,6 +10,7 @@ public class Value {
     double data;
     double grad;
     ArrayList<Value> prev_children;
+    String label = "defaultlabel";
 
     private Runnable _backward = () -> {
     };
@@ -36,7 +37,7 @@ public class Value {
         del A
 
         f(x) = a(x) + b(x)
-        del f/del a = del f/del b + del a/del b
+        del f/del a = del f/del f * del a/del b
 
          */
         out._backward = () -> {
@@ -55,15 +56,25 @@ public class Value {
         };
         return out;
     }
-    // public Value neg(Value a) {
-    //     return this.mult(new Value(-1));
-    // }
-    // public Value sub(Value b) { // a - b
-    //     return this.add(neg(b));
-    // }
-    // public Value pow(Value b) {
-    //     return new Value(Math.pow(this.data, b.data));
-    // }
+
+    public Value neg(Value b) {
+        b.data = -1 * b.data;
+        return b;
+    }
+
+    public Value sub(Value b) { // a - b
+        return this.add(neg(b));
+    }
+
+    public Value pow(Value b) {
+        Value out = new Value(Math.pow(this.data, b.data));
+        out._backward = () -> {
+            this.grad += (b.data * Math.pow(this.data, b.data - 1)) * out.grad;
+            b.grad += (this.data * Math.log(b.data) * out.data) * out.grad;
+        };
+        return out;
+    }
+
     // public Value div(Value b) {
     //     return this.mult(b.pow(neg(new Value(1))));
     // }
@@ -75,10 +86,11 @@ public class Value {
         this.grad = 1;
 
         Collections.reverse(topo);
-        System.out.println(topo);
         for (Value v : topo) {
             v._backward.run();
         }
+        System.out.print("Backward Propogation done. OUTPUT: ");
+        System.out.println(topo);
 
     }
 
@@ -96,7 +108,7 @@ public class Value {
 
     @Override
     public String toString() {
-        String output = String.format("Value: %.3f Gradient: %.3f", this.data, this.grad);
+        String output = String.format("Value %s: %.1f Gradient: %.1f", this.label, this.data, this.grad);
         return output;
     }
 

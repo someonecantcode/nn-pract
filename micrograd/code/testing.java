@@ -4,9 +4,9 @@ import java.util.Arrays;
 public class testing {
 
     public static void main(String[] args) {
-        //myTesting();
-        // ValueTesting();
-        gradientNumericalTest();
+        // myTesting();
+       ValueTesting();
+        // gradientNumericalTest();
     }
 
     public static void myTesting() {
@@ -25,20 +25,28 @@ public class testing {
     }
 
     public static void ValueTesting() {
+        Value a = new Value(1); a.label = "a";
+        Value b = new Value(5); b.label = "b";
+        Value c = a.add(b); c.label = "c"; // 6 
+        Value d = new Value(2); d.label = "d";
+        Value f1 = c.mult(d); f1.label = "f1"; // 6 + 2
 
-        // f.backwards();
-        // System.out.println(f);
-        // System.out.println(f.prev_children);
+
+        System.out.println(f1);
+        f1.backwards();
+
+        System.out.println(f1.prev_children);
+       
     }
 
     public static void gradientNumericalTest() {
         double h = 0.001;
 
-        Value a = new Value(1);
-        Value b = new Value(5);
-        Value c = a.add(b); // 6
-        Value d = new Value(2);
-        Value f1 = c.mult(d); // 6 + 2
+        Value a = new Value(1); a.label = "a";
+        Value b = new Value(5); b.label = "b";
+        Value c = a.add(b); c.label = "c"; // 6 
+        Value d = new Value(2); d.label = "d";
+        Value f1 = c.mult(d); f1.label = "f1"; // 6 + 2
 
         a = new Value(1);
         b = new Value(5);
@@ -47,6 +55,8 @@ public class testing {
 
         Value f2 = c.mult(d); // 6 + 2
         // f = C + D
-        System.out.println((f2.data - f1.data) / h);
+        System.out.printf("Numerical Gradient: %.3f",(f2.data - f1.data) / h);
+
+
     }
 }
