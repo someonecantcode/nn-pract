@@ -74,11 +74,22 @@ public class Value {
         out.label = "RELU";
         out.prev_children.add(this);
         out._backward = () -> {
-             if (out.data > 0) {
+            if (out.data > 0) {
                 this.grad += 1 * out.grad;
-            } 
+            }
             // if (out.data < 0) this.grad += 0 * out.grad; 
             // everything else is all grad = 0;
+        };
+        return out;
+    }
+
+    public Value tanh() {
+        Value out = new Value(Math.tanh(this.data));
+
+        out.label = "tanh";
+        out.prev_children.add(this);
+        out._backward = () -> {
+            this.grad += (1 - Math.pow(out.data, 2))* out.grad;
         };
         return out;
     }
@@ -106,9 +117,8 @@ public class Value {
         for (Value v : topo) {
             v._backward.run();
         }
-        System.out.print("Backward Propogation done. OUTPUT: ");
-        System.out.println(topo);
-
+        // System.out.print("Backward Propogation done. OUTPUT: ");
+        // System.out.println(topo);
     }
 
     private static void DFS(Value v, ArrayList<Value> topo, HashSet<Value> visisted) {
@@ -132,7 +142,7 @@ public class Value {
         if (this.data == -1) {
             return "negative node";
         }
-        String output = String.format("Value %s: %.1f Gradient: %.2f", this.label, this.data, this.grad);
+        String output = String.format("Value %s: %.2f Gradient: %.2f", this.label, this.data, this.grad);
         return output;
     }
 

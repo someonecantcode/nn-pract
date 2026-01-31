@@ -1,13 +1,24 @@
 
 import java.util.Arrays;
 
-public class NeuronValue {
+abstract class Module {
+
+    public abstract Value[] parameters(); // need squash all parameters into a 1D array
+
+    public void zeroGrad() {
+        for (Value p : parameters()) {
+            p.grad = 0;
+        }
+    }
+}
+
+class Neuron extends Module {
 
     Value[] weights;
     Value bias;
     boolean nonlinear;
 
-    public NeuronValue(int totalinput, boolean nonlinear) {
+    public Neuron(int totalinput, boolean nonlinear) {
         weights = new Value[totalinput];
         for (int i = 0; i < totalinput; i++) {
             weights[i] = new Value((Math.random() * 2) - 1);
@@ -19,7 +30,7 @@ public class NeuronValue {
         this.nonlinear = nonlinear;
     }
 
-    public NeuronValue(int totalinput) {
+    public Neuron(int totalinput) {
         this(totalinput, true);
     }
 
@@ -38,10 +49,12 @@ public class NeuronValue {
         }
 
         act = act.add(this.bias);
-        return this.nonlinear ? act.RELU() : act;
+        act.label = "outputFINAL";
+        return this.nonlinear ? act.RELU() : act; // RELU = 0 causes all gradients to be 0.
     }
 
-    public Value[] parameters() {
+    @Override
+    public Value[] parameters() { // creates references allowing for mutation of values
         Value[] output = Arrays.copyOf(this.weights, this.weights.length + 1);
         output[this.weights.length] = this.bias;
 
@@ -55,36 +68,48 @@ public class NeuronValue {
     }
 }
 
-// class Layer {
-//     Neuron[] neurons;
-//     public Layer(int totalinput, int totaloutput, boolean nonlinear) {
-//         neurons = new Neuron[totaloutput];
-//         for (int i = 0; i < totaloutput; i++) {
-//             neurons[i] = new Neuron(totalinput, nonlinear);
-//         }
-//     }
-//     public Layer(int totalinput, int totaloutput) {
-//         this(totalinput, totaloutput, true);
-//     }
-//     public double[] call(double[] input) {
-//         double[] output = new double[this.neurons.length];
-//         for (int i = 0; i < this.neurons.length; i++) {
-//             output[i] = this.neurons[i].call(input);
-//         }
-//         return output;
-//     }
-//     public double[][] parameters() {
-//         double[][] output = new double[this.neurons.length][this.neurons[0].weights.length];
-//         for (int i = 0; i < output.length; i++) {
-//             output[i] = this.neurons[i].parameters();
-//         }
-//         return output;
-//     }
-//     @Override
-//     public String toString() {
-//         return String.format("Layer of %s", Arrays.deepToString(neurons));
-//     }
-// }
+public class LayerValue {
+
+    Neuron[] neurons;
+
+    public LayerValue(int totalinput, int totaloutput, boolean nonlinear) {
+        neurons = new Neuron[totaloutput];
+        for (int i = 0; i < totaloutput; i++) {
+            neurons[i] = new Neuron(totalinput, nonlinear);
+        }
+    }
+
+    public LayerValue(int totalinput, int totaloutput) {
+        this(totalinput, totaloutput, true);
+    }
+
+    public Value[] call(double[] input) {
+        Value[] output = new Value[this.neurons.length];
+        for (int i = 0; i < this.neurons.length; i++) {
+            output[i] = this.neurons[i].call(input);
+        }
+        return output;
+    }
+
+    public Value[] parameters() {
+        //calc total params in layer: weights/bias of each neuron * total neurons
+        int total_params = this.neurons.length * this.neurons[0].parameters().length;
+        Value[] output = new Value[total_params];
+
+        int offset = 0;
+        for (Neuron n : this.neurons) {
+            System.arraycopy(n.parameters(), 0, output, offset, n.parameters().length);
+            offset += n.parameters().length;
+        }
+
+        return output;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Layer of %s", Arrays.deepToString(neurons));
+    }
+}
 // public class MLPValue {
 //     Layer[] layers;
 //     public MLPValue(int numberinputs, int[] numberoutputs) { 

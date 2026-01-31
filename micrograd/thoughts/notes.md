@@ -81,3 +81,42 @@ public static void LayerTesting() {
 ```
 
 ## MLP Testing
+```java
+double[] inputs = {1, 2, 3, 4, 5};
+int[] layerparams = {16, 16, 1};
+for (int i = 0; i < 1; i++) {
+    MLP m = new MLP(inputs.length, layerparams); // 5 inputs 2 neurons
+
+    // System.out.println(m);
+    System.out.printf("params: %s", Arrays.deepToString(m.parameters()));
+    // System.out.println(Arrays.toString(m.call(inputs)));
+
+    System.out.println();
+}
+```
+
+# Value + MLP
+
+## Neuron Testing
+```java
+public static void NeuronValueTesting() {
+    double[] inputs = {1, 2};
+    Neuron n = new Neuron(inputs.length, true);
+
+    double lr = 0.001;
+    while(n.call(inputs).data <= 1000) {
+        n.zeroGrad();
+
+        
+        Value call =  n.call(inputs);
+        call.backwards();
+        System.out.println(call);
+        //System.out.println(Arrays.toString(n.parameters()));
+        //System.out.println();
+        for (Value param : n.parameters()) {
+            param.data += lr * param.grad;
+        }
+        
+    }
+}
+```
