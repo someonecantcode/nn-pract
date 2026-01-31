@@ -1,31 +1,27 @@
-
+import java.util.Arrays;
 
 public class ValueTesting {
 
     public static void main(String[] args) {
-        // myTesting();
         // ValueTesting();
         NeuronValueTesting();
         // gradientNumericalTest();
 
     }
 
-    public static void myTesting() {
-       
-    }
-
     public static void NeuronValueTesting() {
-        double[] inputs = {1, 2};
-        Neuron n = new Neuron(inputs.length, true);
+        double[] inputs = {5, 15, 20};
+        LayerValue n = new LayerValue(inputs.length, 2, false);
 
-        double lr = 0.001;
-        while(n.call(inputs).data <= 1000) {
+        double lr = 0.1;
+        while(n.call(inputs)[0].data <= 1000) {
             n.zeroGrad();
-    
-            
-            Value call =  n.call(inputs);
-            call.backwards();
-            System.out.println(call);
+
+            Value[] outputs = n.call(inputs);
+            for(Value out : outputs){
+                out.backwards();
+            }
+            System.out.println(Arrays.toString(outputs));
             //System.out.println(Arrays.toString(n.parameters()));
             //System.out.println();
             for (Value param : n.parameters()) {

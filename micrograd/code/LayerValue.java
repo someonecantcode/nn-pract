@@ -68,7 +68,7 @@ class Neuron extends Module {
     }
 }
 
-public class LayerValue {
+public class LayerValue extends Module {
 
     Neuron[] neurons;
 
@@ -91,6 +91,7 @@ public class LayerValue {
         return output;
     }
 
+    @Override
     public Value[] parameters() {
         //calc total params in layer: weights/bias of each neuron * total neurons
         int total_params = this.neurons.length * this.neurons[0].parameters().length;
@@ -110,7 +111,7 @@ public class LayerValue {
         return String.format("Layer of %s", Arrays.deepToString(neurons));
     }
 }
-// public class MLPValue {
+// public class MLPValue extends Module {
 //     Layer[] layers;
 //     public MLPValue(int numberinputs, int[] numberoutputs) { 
 //         this.layers = new Layer[numberoutputs.length];
