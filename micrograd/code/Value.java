@@ -1,6 +1,6 @@
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -10,7 +10,8 @@ public class Value {
     double data;
     double grad;
     ArrayList<Value> prev_children;
-    String label = "defaultlabel";
+    String label = "dfl";
+    final boolean DEBUG = true;
 
     private Runnable _backward = () -> {
     };
@@ -31,15 +32,6 @@ public class Value {
 
     public Value add(Value b) {
         Value out = new Value(this.data + b.data, inputsToChildren(b));
-        /*
-        C = A + B
-        del C = 1
-        del A
-
-        f(x) = a(x) + b(x)
-        del f/del a = del f/del f * del a/del b
-
-         */
         out._backward = () -> {
             this.grad += 1 * out.grad;
             b.grad += 1 * out.grad;
@@ -57,27 +49,52 @@ public class Value {
         return out;
     }
 
-    public Value neg(Value b) {
-        b.data = -1 * b.data;
-        return b;
-    }
-
-    public Value sub(Value b) { // a - b
-        return this.add(neg(b));
-    }
-
-    public Value pow(Value b) {
-        Value out = new Value(Math.pow(this.data, b.data));
+    public Value twovarpow(Value b) { // a^b. if a is negative, then the gradients might break
+        Value out = new Value(Math.pow(this.data, b.data), inputsToChildren(b));
         out._backward = () -> {
             this.grad += (b.data * Math.pow(this.data, b.data - 1)) * out.grad;
-            b.grad += (this.data * Math.log(b.data) * out.data) * out.grad;
+            b.grad += (Math.log(this.data) * out.data) * out.grad;
         };
         return out;
     }
 
-    // public Value div(Value b) {
-    //     return this.mult(b.pow(neg(new Value(1))));
-    // }
+    public Value pow(double b) {
+        Value out = new Value(Math.pow(this.data, b));
+
+        out.prev_children.add(this);
+        out._backward = () -> {
+            this.grad += (b * Math.pow(this.data, b - 1)) * out.grad;
+        };
+        return out;
+    }
+
+    public Value RELU() {
+        Value out = new Value(Math.max(0, this.data));
+
+        out.label = "RELU";
+        out.prev_children.add(this);
+        out._backward = () -> {
+             if (out.data > 0) {
+                this.grad += 1 * out.grad;
+            } 
+            // if (out.data < 0) this.grad += 0 * out.grad; 
+            // everything else is all grad = 0;
+        };
+        return out;
+    }
+
+    public Value div(Value b) {
+        return this.mult(b.pow(-1));
+    }
+
+    public Value neg() {
+        return this.mult(new Value(-1));
+    }
+
+    public Value sub(Value b) { // a - b
+        return this.add(b.neg());
+    }
+
     public void backwards() {
         ArrayList<Value> topo = new ArrayList<>(this.prev_children.size());
         HashSet<Value> visited = new HashSet<>();
@@ -108,7 +125,14 @@ public class Value {
 
     @Override
     public String toString() {
-        String output = String.format("Value %s: %.1f Gradient: %.1f", this.label, this.data, this.grad);
+        // if (this.label.equals("defaultlabel-byproduct")) {
+        //     return "";
+        // }
+
+        if (this.data == -1) {
+            return "negative node";
+        }
+        String output = String.format("Value %s: %.1f Gradient: %.2f", this.label, this.data, this.grad);
         return output;
     }
 

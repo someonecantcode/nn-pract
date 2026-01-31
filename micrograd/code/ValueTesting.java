@@ -1,12 +1,16 @@
 
 import java.util.Arrays;
 
-public class testing {
+public class ValueTesting {
 
     public static void main(String[] args) {
         // myTesting();
-       ValueTesting();
+       // ValueTesting();
         // gradientNumericalTest();
+        Value a = new Value(-50); a.label = "a";
+        Value b = a.RELU(); b.label = "b";
+        b.backwards();
+        System.out.print(b);
     }
 
     public static void myTesting() {
@@ -25,18 +29,12 @@ public class testing {
     }
 
     public static void ValueTesting() {
-        Value a = new Value(1); a.label = "a";
-        Value b = new Value(5); b.label = "b";
-        Value c = a.add(b); c.label = "c"; // 6 
-        Value d = new Value(2); d.label = "d";
-        Value f1 = c.mult(d); f1.label = "f1"; // 6 + 2
+        double[] inputs = {1};
+        NeuronValue n = new NeuronValue(inputs.length, true);
 
-
-        System.out.println(f1);
-        f1.backwards();
-
-        System.out.println(f1.prev_children);
-       
+        // System.out.println(Arrays.toString(n.parameters()));
+       System.out.println(n.call(inputs));
+       n.call(inputs).backwards();
     }
 
     public static void gradientNumericalTest() {
@@ -56,7 +54,5 @@ public class testing {
         Value f2 = c.mult(d); // 6 + 2
         // f = C + D
         System.out.printf("Numerical Gradient: %.3f",(f2.data - f1.data) / h);
-
-
     }
 }

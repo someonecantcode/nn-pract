@@ -115,7 +115,7 @@ public class MLP {
         //     if (i == 0) {
         //         layers[0] = new Layer(numberinputs, numberoutputs[0]);
         //     }
-        //     layers[i] = new Layer(numberoutputs[i], numberoutputs[i+1], (i == numberoutputs.length-1));  // no relu on the last.
+        //     layers[i] = new Layer(numberoutputs[i], numberoutputs[i+1], (i == numberoutputs.length-1)); 
         // }
     }
 
@@ -124,7 +124,7 @@ public class MLP {
         // double[] output = new output[input.length] System.arraycopy(input, 0, output, 0, input.length)
         
         // forward pass -> output of the last layer
-        for (int i = 0; i < this.layers.length; i++) {
+        for(int i = 0; i < this.layers.length; i++) {
             output = this.layers[i].call(output);
         }
         return output; 
