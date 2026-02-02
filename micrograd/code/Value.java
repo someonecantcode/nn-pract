@@ -153,14 +153,14 @@ public class Value {
 
     @Override
     public String toString() {
-        // if (this.label.equals("defaultlabel-byproduct")) {
+        // if (this.grad == 0) {
         //     return "";
         // }
 
         if (this.data == -1) {
             return "negative node";
         }
-        String output = String.format("Value %s: %.2f Gradient: %.5f", this.label, this.data, this.grad);
+        String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label, this.data, this.grad);
         return output;
     }
 
