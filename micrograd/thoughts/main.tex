@@ -4,8 +4,8 @@
 \usepackage{xcolor}
 \usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
 \usepackage{caption, booktabs, subcaption}
-\usepackage{amsmath, amssymb, amsthm, cancel}
-\usepackage{algorithm, algpseudocode}
+\usepackage{amsmath, amssymb, amsthm, cancel, thmtools}
+\usepackage{algorithm, algpseudocode, hyperref}
 
 \graphicspath{{./Images}}
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -35,7 +35,8 @@
 \lstset{style=mystyle}
 
 \theoremstyle{definition}
-\newtheorem{definition}{DEFINITION}
+\newtheorem{definition}{DEFINITION}[section]
+
 %-------------------------------
 \title{micrograd}
 \author{ someonecantcode }
@@ -53,6 +54,7 @@
 \end{abstract}
 
 \tableofcontents
+\listoftheorems
 \vspace{1cm}
 
 \begin{figure}[H]

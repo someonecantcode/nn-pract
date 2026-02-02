@@ -16,7 +16,7 @@ However, imagine if we have a function of two variables with one being a composi
 In this example, it should become clear that we will always calculate the outer derivative and multiply it by the inner derivative.
 At the start, we will simply take it's derivative and multiply it by one. 
 
-\begin{definition}
+\begin{definition}[Chain Rule]
     With that, back propagation is defined by the chain rule.
     \begin{align}
         & L(c, d) = c + d, \quad  c(a) = a+b; \\
@@ -30,7 +30,7 @@ At the start, we will simply take it's derivative and multiply it by one.
     \end{align}
 \end{definition}
 
-\begin{definition}
+\begin{definition}[Gradient]
     We can take this farther and define the gradient of the loss function.
         \begin{equation}
         \boxed{\nabla L = \left\langle \frac{\partial L}{\partial a_0}, \dots \frac{\partial L}{\partial a_i} \right\rangle}
