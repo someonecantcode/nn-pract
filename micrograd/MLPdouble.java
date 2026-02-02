@@ -83,10 +83,10 @@ class Layer {
     }
 }
 
-public class MLP {
+public class MLPdouble {
     Layer[] layers;
 
-    public MLP(int numberinputs, int[] numberoutputs) { 
+    public MLPdouble(int numberinputs, int[] numberoutputs) { 
         this.layers = new Layer[numberoutputs.length];
 
         int[] chaining = new int[numberoutputs.length + 1];

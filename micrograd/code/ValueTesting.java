@@ -11,28 +11,29 @@ public class ValueTesting {
     }
 
     public static void NeuronValueTesting() {
-        double[] inputs = {0.4, 0.1};
-        LayerValue n = new LayerValue(inputs.length, 2, false);
+        Value[] inputs = {new Value(0.4) , new Value(0.1)};
+        int[] layerparams = {16, 16, 2};
+        MLP m = new MLP(inputs.length, layerparams);
 
         double lr = 0.5;
-        System.out.println(Arrays.toString(n.call(inputs)));
+        System.out.println(Arrays.toString(m.call(inputs)));
 
-        while (getloss(n.call(inputs)).data >= .01) {
-            n.zeroGrad();
+        while (getloss(m.call(inputs)).data >= .01) {
+            m.zeroGrad();
 
-            Value[] outputs = n.call(inputs);
+            Value[] outputs = m.call(inputs);
             Value loss = getloss(outputs);
 
             loss.backwards();
             // System.out.println(Arrays.toString(outputs));
             System.out.println(1 - loss.data);
 
-            for (Value param : n.parameters()) {
+            for (Value param : m.parameters()) {
                 param.data += lr * -param.grad;
             }
         }
-        System.out.println(Arrays.toString(n.call(inputs)));
-        System.out.println(Arrays.toString(n.parameters()));
+        System.out.println(Arrays.toString(m.call(inputs)));
+        System.out.println(Arrays.toString(m.parameters()));
     }
 
     public static Value getloss(Value[] outputs) {
