@@ -2,7 +2,9 @@
 import java.util.Arrays;
 
 public class ValueTesting {
+
     public static Value[] expected = {new Value(500), new Value(70)};
+
     public static void main(String[] args) {
         // ValueTesting();
         NeuronValueTesting();
@@ -11,27 +13,34 @@ public class ValueTesting {
     }
 
     public static void NeuronValueTesting() {
-        Value[] inputs = {new Value(0.4), new Value(0.1)};
+        Value[][] inputs = {{new Value(0.4), new Value(0.1)},
+        {new Value(5), new Value(10)}};
         int[] layerparams = {16, 16, 2};
-        MLP m = new MLP(inputs.length, layerparams);
+        MLP m = new MLP(inputs[0].length, layerparams);
 
         double lr = 0.1;
-        System.out.println(Arrays.toString(m.call(inputs)));
 
-        while (getMSEloss(m.call(inputs)).data >= .01) {
+        for (Value[] v : inputs) {
+            System.out.println(Arrays.toString(m.call(v)));
+        }
+
+        Value[][] preds = new Value[inputs.length][inputs[0].length];
+        do {
             m.zeroGrad();
 
-            Value[] outputs = m.call(inputs);
-            Value loss = getMSEloss(outputs);
+            for (int i = 0; i < preds.length; i++) {
+                preds[i] = m.call(inputs[i]);
+            }
 
+            Value loss = getMSEloss(preds);
             loss.backwards();
-            // System.out.println(Arrays.toString(outputs));
-            System.out.printf("\nloss: %.6f | acc: %.6f | data: %s ", loss.data, 1 - getloss(outputs).data, Arrays.toString(outputs));
+            System.out.printf("\nloss: %.6f | data: %s ", loss.data, Arrays.deepToString(preds));
 
             for (Value param : m.parameters()) {
                 param.data += lr * -param.grad;
             }
-        }
+        } while (getMSEloss(preds).data >= .01);
+        
         // System.out.println(Arrays.toString(m.parameters()));
         // System.out.println(Arrays.toString(m.call(inputs)));
 
@@ -39,7 +48,7 @@ public class ValueTesting {
 
     public static Value getloss(Value[] outputs) {
         Value acc = new Value(0);
-        
+
         for (int i = 0; i < outputs.length; i++) {
             // 1 - math.abs(outputs[i] - expected[i])/expected[i]
             Value calc = (((outputs[i].sub(expected[i])).abs()).div(expected[i]));
@@ -48,13 +57,15 @@ public class ValueTesting {
         return acc.div(new Value(outputs.length));
     }
 
-    public static Value getMSEloss(Value[] outputs) {
+    public static Value getMSEloss(Value[][] outputs) {
         Value acc = new Value(0);
 
-        for (int i = 0; i < outputs.length; i++) {
-            // (expected[i] - output[i])^2
-            Value calc = (expected[i].sub(outputs[i])).pow(2);
-            acc = acc.add(calc);
+        for (Value[] output : outputs) {
+            for (int j = 0; j < output.length; j++) {
+                // (expected[i] - output[i])^2
+                Value calc = (expected[j].sub(output[j])).pow(2);
+                acc = acc.add(calc);
+            }
         }
         return acc.div(new Value(outputs.length));
     }
