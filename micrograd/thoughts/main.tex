@@ -1,9 +1,11 @@
 \documentclass[11pt]{article}
-\usepackage{graphicx, float} % Required for inserting images
+\usepackage{graphicx, float, parskip} % Required for inserting images
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
 \usepackage{caption, booktabs, subcaption}
+\usepackage{amsmath, amssymb, amsthm, cancel}
+\usepackage{algorithm, algpseudocode}
 
 \graphicspath{{./Images}}
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -32,52 +34,36 @@
 
 \lstset{style=mystyle}
 
+\theoremstyle{definition}
+\newtheorem{definition}{DEFINITION}
 %-------------------------------
 \title{micrograd}
 \author{ someonecantcode }
 \date{\today}
 %----------------------------
 \begin{document}
-\maketitle	
+
+\maketitle
 
 % Optional TOC
 
-
 \begin{abstract}
-This is an explanation of my code, design choices, and how it's implementation is efficient. Additionally, 
-we will also discuss potential future features and classes for new behaviors. 
+    This is an explanation of my code, design choices, and how it's implementation is efficient. Additionally,
+    we will also discuss potential future features and classes for new behaviors.
 \end{abstract}
 
 \tableofcontents
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-\ \\
-
+\vspace{1cm}
 
 \begin{figure}[H]
-        \centering
-        \frame{\includegraphics[width=0.25\textwidth,height=0.25\textheight,keepaspectratio]{thumbnail.png}}
-        \caption[short]{hehehaha cool mega mind}
+    \centering
+    \frame{\includegraphics[width=0.25\textwidth, keepaspectratio]{thumbnail.png}}
+    \caption[short]{hehehaha cool mega mind}
 \end{figure}
 %--Paper-- 
 \include{Chapters/Beginnings}
-
-
+\include{Chapters/Backprop}
 
 \pagebreak
-
-
-
 
 \end{document}

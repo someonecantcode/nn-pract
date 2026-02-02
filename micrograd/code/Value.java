@@ -11,7 +11,6 @@ public class Value {
     double grad;
     ArrayList<Value> prev_children;
     String label = "dfl";
-    final boolean DEBUG = true;
 
     private Runnable _backward = () -> {
     };
