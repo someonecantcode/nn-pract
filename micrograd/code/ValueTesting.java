@@ -13,12 +13,12 @@ public class ValueTesting {
     }
 
     public static void NeuronValueTesting() {
-        Value[][] inputs = {{new Value(0.4), new Value(0.1)},
-        {new Value(5), new Value(10)}};
+        Value[][] inputs = {{new Value(5.1), new Value(1.1)},
+        {new Value(.1), new Value(1.1)}};
         int[] layerparams = {16, 16, 2};
         MLP m = new MLP(inputs[0].length, layerparams);
 
-        double lr = 0.1;
+        double lr = 0.5;
 
         for (Value[] v : inputs) {
             System.out.println(Arrays.toString(m.call(v)));
@@ -31,10 +31,9 @@ public class ValueTesting {
             for (int i = 0; i < preds.length; i++) {
                 preds[i] = m.call(inputs[i]);
             }
-
             Value loss = getMSEloss(preds);
             loss.backwards();
-            System.out.printf("\nloss: %.6f | data: %s ", loss.data, Arrays.deepToString(preds));
+            System.out.printf("\nloss: %.2f | data: %s ", loss.data, Arrays.deepToString(preds));
 
             for (Value param : m.parameters()) {
                 param.data += lr * -param.grad;
@@ -67,7 +66,7 @@ public class ValueTesting {
                 acc = acc.add(calc);
             }
         }
-        return acc.div(new Value(outputs.length));
+        return acc.div(new Value(outputs.length * outputs[0].length));
     }
 
     public static void ValueTesting() {
