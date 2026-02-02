@@ -39,6 +39,7 @@ class Neuron extends Module {
         assert weights.length == input.length : "input size must the be same as weights size: " + weights.length;
 
         Value act = new Value(0);
+        act.label = "0 act";
         for (int i = 0; i < input.length; i++) {
             Value xi = new Value(input[i]);
             xi.label = "x" + i;
@@ -46,10 +47,11 @@ class Neuron extends Module {
             Value dot = this.weights[i].mult(xi);
             dot.label = xi.label + this.weights[i].label;
             act = act.add(dot);
+            act.label = "act_sum";
         }
 
         act = act.add(this.bias);
-        act.label = "outputFINAL";
+        act.label = "act_final";
         return this.nonlinear ? act.RELU() : act; // RELU = 0 causes all gradients to be 0.
     }
 

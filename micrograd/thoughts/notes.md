@@ -47,7 +47,6 @@ $$ \begin{align} & \mathrm{GELU}(x) = x \, \Phi(x)  =  \frac{x}{2}\left[1 + \ope
 & \mathrm{GEGLU}(x) = x\sigma(x) + \mathrm{GELU}(x)
 \end{align}$$
 
-
 # MLP Engine
 
 ## Neuron testing
@@ -107,7 +106,6 @@ public static void NeuronValueTesting() {
     while(n.call(inputs).data <= 1000) {
         n.zeroGrad();
 
-        
         Value call =  n.call(inputs);
         call.backwards();
         System.out.println(call);
@@ -116,7 +114,33 @@ public static void NeuronValueTesting() {
         for (Value param : n.parameters()) {
             param.data += lr * param.grad;
         }
-        
+
     }
 }
+```
+
+## Pure 1 layer test
+* you must back prop each individual neuron.
+
+```java
+double[] inputs = {5, 15, 20};
+        LayerValue n = new LayerValue(inputs.length, 2, false);
+
+        double lr = 0.1;
+        while(n.call(inputs)[0].data <= 1000) {
+            n.zeroGrad();
+
+            Value[] outputs = n.call(inputs);
+            for(Value out : outputs){
+                out.backwards();
+            }
+            System.out.println(Arrays.toString(outputs));
+            //System.out.println(Arrays.toString(n.parameters()));
+            //System.out.println();
+            for (Value param : n.parameters()) {
+                param.data += lr * param.grad;
+            }
+
+        }
+
 ```

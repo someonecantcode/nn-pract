@@ -1,3 +1,4 @@
+
 import java.util.Arrays;
 
 public class ValueTesting {
@@ -10,25 +11,39 @@ public class ValueTesting {
     }
 
     public static void NeuronValueTesting() {
-        double[] inputs = {5, 15, 20};
+        double[] inputs = {0.4, 0.1};
         LayerValue n = new LayerValue(inputs.length, 2, false);
 
-        double lr = 0.1;
-        while(n.call(inputs)[0].data <= 1000) {
+        double lr = 0.5;
+        System.out.println(Arrays.toString(n.call(inputs)));
+
+        while (getloss(n.call(inputs)).data >= .01) {
             n.zeroGrad();
 
             Value[] outputs = n.call(inputs);
-            for(Value out : outputs){
-                out.backwards();
-            }
-            System.out.println(Arrays.toString(outputs));
-            //System.out.println(Arrays.toString(n.parameters()));
-            //System.out.println();
+            Value loss = getloss(outputs);
+
+            loss.backwards();
+            // System.out.println(Arrays.toString(outputs));
+            System.out.println(1 - loss.data);
+
             for (Value param : n.parameters()) {
-                param.data += lr * param.grad;
+                param.data += lr * -param.grad;
             }
-            
         }
+        System.out.println(Arrays.toString(n.call(inputs)));
+        System.out.println(Arrays.toString(n.parameters()));
+    }
+
+    public static Value getloss(Value[] outputs) {
+        Value acc = new Value(0);
+        double[] expected = {50, 70};
+        for (int i = 0; i < outputs.length; i++) {
+            // 1 - math.abs(outputs[i] - expected[i])/expected[i]
+            Value calc = (((outputs[i].sub(new Value(expected[i]))).abs()).div(new Value(expected[i])));
+            acc = acc.add(calc);
+        }
+        return acc.div(new Value(outputs.length));
     }
 
     public static void ValueTesting() {

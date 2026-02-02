@@ -94,6 +94,24 @@ public class Value {
         return out;
     }
 
+    public Value abs() {
+        Value out = new Value(Math.abs(this.data));
+
+        out.label = "abs";
+        out.prev_children.add(this);
+        out._backward = () -> {
+            if (this.data > 0 ){
+                 this.grad += 1 * out.grad;
+            }
+
+             if (this.data < 0 ){
+                 this.grad += -1 * out.grad;
+            }
+           
+        };
+        return out;
+    }
+
     public Value div(Value b) {
         return this.mult(b.pow(-1));
     }
@@ -142,7 +160,7 @@ public class Value {
         if (this.data == -1) {
             return "negative node";
         }
-        String output = String.format("Value %s: %.2f Gradient: %.2f", this.label, this.data, this.grad);
+        String output = String.format("Value %s: %.2f Gradient: %.5f", this.label, this.data, this.grad);
         return output;
     }
 
