@@ -5,8 +5,10 @@
 \usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
 \usepackage{caption, booktabs, subcaption}
 \usepackage{amsmath, amssymb, amsthm, cancel, thmtools}
-\usepackage{algorithm, algpseudocode, hyperref}
+\usepackage{algorithm, algpseudocode}
+\usepackage{hyperref}
 
+% \includeonly{Chapters/Beginnings}
 \graphicspath{{./Images}}
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -62,10 +64,10 @@
     \frame{\includegraphics[width=0.25\textwidth, keepaspectratio]{thumbnail.png}}
     \caption[short]{hehehaha cool mega mind}
 \end{figure}
-%--Paper-- 
-\include{Chapters/Beginnings}
-\include{Chapters/Backprop}
 
-\pagebreak
+%--Paper-- 
+\newpage
+\input{Chapters/Beginnings}
+\input{Chapters/Backprop}
 
 \end{document}

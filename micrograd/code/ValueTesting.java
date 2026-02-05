@@ -3,7 +3,7 @@ import java.util.Arrays;
 
 public class ValueTesting {
 
-    public static Value[] expected = {new Value(500), new Value(70)};
+    public static Value[] expected = {new Value(67), new Value(70)};
 
     public static void main(String[] args) {
         // ValueTesting();
@@ -38,7 +38,7 @@ public class ValueTesting {
             for (Value param : m.parameters()) {
                 param.data += lr * -param.grad;
             }
-        } while (getMSEloss(preds).data >= .01);
+        } while (getMSEloss(preds).data >= .001);
         
         // System.out.println(Arrays.toString(m.parameters()));
         // System.out.println(Arrays.toString(m.call(inputs)));
