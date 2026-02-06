@@ -1,0 +1,137 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{parskip, cancel, hyperref}
+\usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
+
+\theoremstyle{definition}
+\newtheorem{definition}{DEFINITION}
+%-------------------------------
+\title{2.4 Notes}
+\author{ someonecantcode }
+\date{\today}
+%----------------------------
+\begin{document}
+\maketitle
+\tableofcontents
+
+\newpage
+\section{Normal Exact ODES}
+
+\begin{definition} \ \
+    An exact equation is defined as the following:
+    
+    \begin{equation}
+        M(x,y) dx + N(x,y) dy = 0, \text{where } M_y = N_x
+    \end{equation}
+
+    It should be analogous to 
+    \begin{equation}
+        f_x dx + f_y dy = dz = 0  \Longrightarrow z = f(x,y) = c 
+    \end{equation}
+
+    $$ c \text{ is a constant.}$$
+
+\end{definition}
+
+\subsection{solving process}
+Here is the formal general process:
+
+\begin{align*}
+    & f_x = M, \quad   f_y = N \\
+    & \int \frac{\partial f}{\partial x} dx = \int M(x,y) dx \\
+    & f(x,y) = \int M(x,y) dx + h(y) , \quad \text{this is your general solution, now solve for } h(y) \\\\
+    & \frac{\partial}{\partial y} \left( f(x,y) = \int M(x,y) dx + h(y) \right) \\
+    & \frac{\partial f}{\partial y} = \frac{\partial}{\partial y} \int M(x,y) dx + h'(y) \\
+    & \text{Recall that }  f_y = N \\
+    \Longrightarrow & N(x,y) = \frac{\partial}{\partial y} \int M(x,y) dx + h'(y) \\
+    & N(x,y) - \frac{\partial}{\partial y} \int M(x,y) dx = h'(y) \\\\
+    & \text{substitue it back into the solution}\\
+    & \int \left(N(x,y) - \frac{\partial}{\partial y} \int M(x,y) dx \right) dy = \int  h'(y) dy = h(y) \\
+    & f(x,y) = \int M(x,y) dx + h(y) \\
+   \Longrightarrow & \boxed{f(x,y) = \int M(x,y) dx + \int \left(N(x,y) - \frac{\partial}{\partial y} \int M(x,y) dx \right) dy = C}
+\end{align*}
+
+This is not a formula but this is the general solving practice. Can be applied for in the direction of $y$.
+
+
+\subsection{Luke Rawling shortcut method}
+
+Simply just take the derivatives instead of that weird definition method. You use pattern
+recognition to see which one is $f(x)$, the functions of $x$ are $h(x)$, and the functions of $y$ are $g(y)$.
+This is the process and assume $M_y = N_x$ or the ODE is exact in English.
+
+\begin{align*}
+    & M(x,y) dx + N(x,y) dy = 0 \\
+    & \int M(x,y) dx + \int N(x,y) dy = 0 \\
+    & f(x,y) + g(y) + f(x,y) + h(x) = 0 \\
+    & 2f(x,y) + g(y) + h(x) = 0 \\
+    \Longrightarrow & \boxed{f(x,y) + g(y) + h(x) = C}
+\end{align*}
+
+Example: 
+
+\begin{align*}
+   & (y-1)dx + (x + 1)dy = 0 \\
+   & \frac{\partial}{\partial y} (y-1) = 1, \quad \frac{\partial}{\partial x} (x+1) = 1\\
+   & M_y = N_x \\
+   & \int (y-1)dx +\int (x + 1)dy = 0 \\
+   & xy-y  + xy +x  = 0 \\
+   & 2xy -y + x  = 0 \\
+   & 2f(x,y) + g(y) + h(x) = 0 \\
+   \Longrightarrow & \boxed{xy - y + x = C}
+\end{align*}
+
+Yes test it by yourself and you should get the same answer.
+
+\section{Near-exact ODEs}
+This method is simply multiplying the ODE by an integrating factor usually 
+denoted as ($\mu(x, y)$ to be formal) either a function of $\mu(x)$ or $\mu(y)$ to make 
+the ODE exact. Afterwards, you just solve exactly the same as an exact problem.
+
+Find your $P(x)$ or $P(y)$ and use the following formula.
+
+\begin{definition}
+    The integrating factor is the following:
+    \begin{equation}
+        \mu(x) = e^{\int P(x) dx}, \quad  \mu(y) = e^{\int P(y) dy}
+    \end{equation}
+\end{definition}
+
+I will not derive, solve, and prove the formulas for $P(x)$ and $P(y)$. An easy way 
+to memorize this is that these are the exact same partial derivatives as when you are testing
+for exactness. KEY THING, THESE SHOULD BE FUNCTIONS OF EITHER $x$ or $y$. YOU MUST TEST EITHER.
+
+\begin{definition}
+    Formulas for $P(x)$ and $P(y)$.
+
+    \begin{equation}
+        P(x) = \frac{M_y - N_x}{N}, \quad \mu(x) = e^{\int \frac{M_y - N_x}{N} dx}
+    \end{equation}
+
+    \begin{equation}
+        P(y) = \frac{N_x - M_y}{M}, \quad \mu(y) = e^{\int \frac{N_x - M_y}{M} dy}
+    \end{equation}
+\end{definition}
+
+\newpage
+\subsection{Example}
+Example (video walkthrough \url{https://www.youtube.com/watch?v=6eNgoXoVTWM}) :
+
+\begin{align*}
+    & (y^{2}+2xy)dx - x^2 dy = 0\\
+    & \frac{\partial}{\partial y} (y^{2}+2xy) = 2y+2x, \quad \frac{\partial}{\partial x} (-x^2) = -2x, \text{DO NOT MAKE THE MISTAKE OF } x^2 \\
+    & 2y+2x \neq -2x \\
+    & P(x) = \frac{M_y - N_x}{N} = \frac{2y+2x-(-2x)}{x^2} =  \frac{2y+4x}{x^2}, \quad \text{NOT FUNCTION OF X} \\
+    & P(y) = \frac{N_x - M_y}{M} = \frac{(-2x)-(2y+2x)}{y^2 + 2xy} = \frac{-2y-4x}{y(y+2x)} = \frac{-2(y+2x)}{y(y+2x)} \\
+    & \frac{N_x - M_y}{M} = - \frac{2}{y} = P(Y) , \text{IS A FUNCTION OF Y} \\
+    & \mu(y) = e^{\int P(y) dy} = e^{\int -2y^{-1} dy} = e^{\ln|y^{-2}|} = y^{-2}, \text{we ignore sign due to } x^2. \\\\
+    & \mu(y) \left((y^{2}+2xy)dx - x^2 dy = 0\right) \\
+    & \frac{1}{y^2} \left((y^{2}+2xy)dx - x^2 dy = 0\right) \\
+    & (1+2xy^{-1})dx - x^{2} y^{-2} dy = 0 \\
+    & \int (1+2xy^{-1})dx - \int x^{2} y^{-2} dy = 0 \\
+    & x+\frac{x^2}{y} + \frac{x^2}{y} = 0 \\
+    & 2f(x, y) = \frac{x^2}{y}, g(x) = x \\
+    \Longrightarrow & \boxed{f(x,y) = \frac{x^2}{y} + x = C}
+\end{align*}
+
+\end{document}
