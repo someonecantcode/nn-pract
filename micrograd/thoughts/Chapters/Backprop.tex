@@ -68,3 +68,18 @@ using a recursive formula to completely search each branch. Reversing should be 
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
+
+\begin{algorithm}[H]
+\caption{DFS for Topological Sort}
+\begin{algorithmic}
+\Procedure{DFS}{v, topo, visited}
+    \If{v $\notin$ visited}
+        \State  \text{visited} $\gets$ \text{visited} $\cup \ \{v\}$
+        \ForAll{child $\in$ v.prev\_children}
+            \State \Call{DFS}{child, topo, visited}
+        \EndFor
+        \State \text{append}(topo, v)
+    \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
