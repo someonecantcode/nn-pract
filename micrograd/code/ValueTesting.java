@@ -15,10 +15,11 @@ public class ValueTesting {
     public static void NeuronValueTesting() {
         Value[][] inputs = {{new Value(5.1), new Value(1.1)},
         {new Value(.1), new Value(1.1)}};
-        int[] layerparams = {16, 16, 2};
+        int[] layerparams = {16, 16, 3};
         MLP m = new MLP(inputs[0].length, layerparams);
 
         double lr = 0.5;
+        double alpha = 1e-2;
 
         for (Value[] v : inputs) {
             System.out.println(Arrays.toString(m.call(v)));
@@ -31,14 +32,19 @@ public class ValueTesting {
             for (int i = 0; i < preds.length; i++) {
                 preds[i] = m.call(inputs[i]);
             }
-            Value loss = getMSEloss(preds);
-            loss.backwards();
-            System.out.printf("\nloss: %.2f | data: %s ", loss.data, Arrays.deepToString(preds));
+
+            // L2 norm for parameters
+            Value reg_loss = getMeanSquaredParams(m.parameters()).mult(new Value(alpha));
+            Value data_loss = getMSEloss(preds);
+
+            Value total_loss = data_loss.add(reg_loss);
+            total_loss.backwards();
+            System.out.printf("\nloss: %.2f | reg_loss: %.2f | data: %s ", data_loss.data, reg_loss.data, Arrays.deepToString(preds));
 
             for (Value param : m.parameters()) {
                 param.data += lr * -param.grad;
             }
-        } while (getMSEloss(preds).data >= .001);
+        } while (getMSEloss(preds).data >=  1e-2);
         
         // System.out.println(Arrays.toString(m.parameters()));
         // System.out.println(Arrays.toString(m.call(inputs)));
@@ -60,13 +66,21 @@ public class ValueTesting {
         Value acc = new Value(0);
 
         for (Value[] output : outputs) {
-            for (int j = 0; j < output.length; j++) {
+            for (int j = 0; j < expected.length; j++) { // expected.length incase we only care about certain entries
                 // (expected[i] - output[i])^2
                 Value calc = (expected[j].sub(output[j])).pow(2);
                 acc = acc.add(calc);
             }
         }
         return acc.div(new Value(outputs.length * outputs[0].length));
+    }
+
+    public static Value getMeanSquaredParams(Value[] params) {
+        Value output = new Value(0);
+        for(Value p : params) {
+            output = output.add(p.pow(2));
+        }
+        return output.div(new Value(params.length));
     }
 
     public static void ValueTesting() {
