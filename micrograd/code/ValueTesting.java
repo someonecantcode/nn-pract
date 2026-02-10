@@ -1,5 +1,7 @@
-
 import java.util.Arrays;
+
+import nnlib.Value;
+import nnlib.MLP;
 
 public class ValueTesting {
 

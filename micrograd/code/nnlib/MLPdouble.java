@@ -1,5 +1,6 @@
-import java.util.Arrays;
+package nnlib;
 
+import java.util.Arrays;
 
 class Neuron {
     double[] weights;

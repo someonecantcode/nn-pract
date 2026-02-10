@@ -1,3 +1,4 @@
+package micrograd.MNIST;
 
 import java.util.Arrays;
 
