@@ -1,4 +1,4 @@
-package nnlib;
+package micrograd.nnlib;
 
 import java.util.Arrays;
 
