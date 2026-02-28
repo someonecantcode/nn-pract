@@ -1,7 +1,6 @@
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.classfile.Label;
 import java.util.Arrays;
 
 public class DataLoader {
@@ -9,32 +8,36 @@ public class DataLoader {
     private static final int IMAGE_SIZE = 784;
     private static final String CHAR_DENSITY_GRADIENT = " .:-=+*#%@";
 
-    private final FileInputStream LabelReader; //idx1
-    private final FileInputStream ImageReader; //idx3
-    
+    private final FileInputStream LabelReader; //idx1 = 2049
+    private final FileInputStream ImageReader; //idx3 = 2051
 
-    public DataLoader(String IMAGE_PATH, String LABEL_PATH) throws IOException {
+    private int[] LabelHeader = new int[2];
+    private int[] ImageHeader = new int[4];
+
+    public DataLoader(String LABEL_PATH, String IMAGE_PATH) throws IOException {
         this.LabelReader = new FileInputStream(LABEL_PATH);
         this.ImageReader = new FileInputStream(IMAGE_PATH);
+
+        this.getHeader(this.LabelReader, this.LabelHeader);
+        this.getHeader(this.ImageReader, this.ImageHeader);
     }
 
     public void readDataTEST() throws IOException {
-        int totalstuff = this.ImageReader.available();
-        System.out.println(totalstuff);
+        // int totalstuff = this.ImageReader.available();
+        // System.out.println(totalstuff);
 
-        int[] headerValues = getHeader(this.ImageReader);
-        System.out.println(Arrays.toString(headerValues));
+        System.out.println(Arrays.toString(ImageHeader));
 
         for (int n = 0; n < 10; n++) {
-            readLabel(headerValues);
-            //   readImage(headerValues);
+        //    readImage();
+        // readLabel();
         }
 
     }
 
-    public void readLabel(int[] headerValues) throws IOException {
+    public void readLabel() throws IOException {
         int m = (this.LabelReader.read());
-        System.out.println(m);
+    //    System.out.println(m);
     }
     
     public void readImage() throws IOException {
@@ -42,10 +45,10 @@ public class DataLoader {
         final int ROW_INDEX = 2;
         final int COL_INDEX = 3;
 
-        int[] headerValues = getHeader(ImageReader);
+        System.out.println(Arrays.toString(ImageHeader));
 
-        for (int i = 0; i < headerValues[ROW_INDEX]; i++) { // first image
-            for (int j = 0; j < headerValues[COL_INDEX]; j++) {
+        for (int i = 0; i < ImageHeader[ROW_INDEX]; i++) { // first image
+            for (int j = 0; j < ImageHeader[COL_INDEX]; j++) {
                 int m = (this.ImageReader.read());
                 char brightness = CHAR_DENSITY_GRADIENT.charAt((m * (CHAR_DENSITY_GRADIENT.length() - 1)) / (255));
                 System.out.printf("%3c", brightness);
@@ -54,28 +57,10 @@ public class DataLoader {
         }
     }
 
-
-    public int[] getHeader(FileInputStream fileReader) throws IOException {
-        int magicIdentifer = (fileReader.read() << 24) | (fileReader.read() << 16) | (fileReader.read() << 8) | (fileReader.read()); //magic identifier idx1= 2049, idx=2051
-        int headerSize = getHeaderSizeIDX(magicIdentifer);
-
-        int[] headerValues = new int[headerSize];
-        headerValues[0] = magicIdentifer;
-        for (int i = 1; i < headerSize; i++) { // to fill the array
-            headerValues[i] = (fileReader.read() << 24) | (fileReader.read() << 16) | (fileReader.read() << 8) | (fileReader.read());
+    public void getHeader(FileInputStream fileReader, int[] header) throws IOException {
+        for (int i = 0; i < header.length; i++) { // to fill the array
+            header[i] = (fileReader.read() << 24) | (fileReader.read() << 16) | (fileReader.read() << 8) | (fileReader.read());
         }
-        return headerValues;
-    }
-
-    public int getHeaderSizeIDX(int magicIdentifer) {
-        // if (magicIdentifer == 2049) {
-        //     return 2;
-        // }
-
-        // if (magicIdentifer == 2051) {
-        //     return 4;
-        // }
-        return magicIdentifer - 2047;
     }
 
     public void closefileReader() throws IOException {
