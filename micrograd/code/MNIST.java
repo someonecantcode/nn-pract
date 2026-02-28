@@ -23,8 +23,8 @@ public class MNIST {
     }
 
     public static void testing() throws IOException {
-        DataLoader d = new DataLoader();
-        d.readData();
+        DataLoader d = new DataLoader("./data/t10k-labels.idx1-ubyte", "./data/t10k-images.idx3-ubyte");
+        d.readDataTEST();
     }
 
 }
