@@ -1,5 +1,4 @@
-package micrograd.nnlib;
-
+package nnlib;
 import java.util.Arrays;
 
 class Neuron {

@@ -1,5 +1,4 @@
-package micrograd.nnlib;
-
+package nnlib;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,10 +7,10 @@ import java.util.HashSet;
 // refer to https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 public class Value {
 
-    double data;
-    double grad;
+    public double data;
+    public double grad;
+    public String label = "dfl";
     ArrayList<Value> prev_children;
-    String label = "dfl";
 
     private Runnable _backward = () -> {
     };
