@@ -44,7 +44,7 @@ public class MNIST {
             // System.out.println(Arrays.toString(images[0]));
             // displayValueImage(images[0]);
 
-            // feed forward
+            // feed forward + softmax
             Value[][] preds = new Value[howMany][OUTPUT_SIZE];
             for (int i = 0; i < preds.length; i++) {
                 preds[i] = m.call(images[i]);
@@ -149,6 +149,15 @@ public class MNIST {
         loss_output = loss_output.div(new Value(outputs.length * outputs[0].length));
 
         return loss_output;
+    }
+
+    // public static Value[] softmax(Value[] input) {
+    //     // first sum e^z
+        
+    // }
+
+    public static Value getCrossEntropyLoss(Value[][] outputs, Value[][] expected) {
+        return new Value(0);
     }
 
     public static Value getMSEParams(Value[] params) {

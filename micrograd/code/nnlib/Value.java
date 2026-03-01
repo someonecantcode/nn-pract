@@ -84,6 +84,16 @@ public class Value {
         return out;
     }
 
+    public Value exp() {
+        Value out = new Value(Math.exp(this.data));
+
+        out.prev_children.add(this);
+        out._backward = () -> {
+            this.grad += out.data * out.grad;
+        };
+        return out;
+    }
+
     public Value RELU() {
         Value out = new Value(Math.max(0, this.data));
 
