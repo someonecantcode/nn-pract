@@ -1,8 +1,10 @@
 package nnlib;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 // refer to https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 public class Value {
@@ -37,6 +39,21 @@ public class Value {
         };
 
         return out;
+    }
+
+    public static Value sum(List<Value> values) { // to reduce depth to O(log n)
+        if (values.size() == 1)
+            return values.get(0);
+
+        ArrayList<Value> next = new ArrayList<>();
+        for (int i = 0; i < values.size(); i += 2) {
+            if (i + 1 < values.size()) {
+                next.add(values.get(i).add(values.get(i + 1)));
+            } else {
+                next.add(values.get(i));
+            }
+        }
+        return sum(next);
     }
 
     public Value mult(Value b) {
@@ -76,7 +93,7 @@ public class Value {
             if (out.data > 0) {
                 this.grad += 1 * out.grad;
             }
-            // if (out.data < 0) this.grad += 0 * out.grad; 
+            // if (out.data < 0) this.grad += 0 * out.grad;
             // everything else is all grad = 0;
         };
         return out;
@@ -88,8 +105,20 @@ public class Value {
         out.label = "tanh";
         out.prev_children.add(this);
         out._backward = () -> {
-            this.grad += (1 - Math.pow(out.data, 2))* out.grad;
+            this.grad += (1 - Math.pow(out.data, 2)) * out.grad;
         };
+        return out;
+    }
+
+    public Value sigmoid() {
+        Value out = new Value(1 / (1 + Math.exp(-1 * this.data)));
+
+        out.label = "sigmoid";
+        out.prev_children.add(this);
+        out._backward = () -> {
+            this.grad += (out.data)*(1-out.data) * out.grad;
+        };
+        System.out.println(out.data);
         return out;
     }
 
@@ -99,14 +128,14 @@ public class Value {
         out.label = "abs";
         out.prev_children.add(this);
         out._backward = () -> {
-            if (this.data > 0 ){
-                 this.grad += 1 * out.grad;
+            if (this.data > 0) {
+                this.grad += 1 * out.grad;
             }
 
-             if (this.data < 0 ){
-                 this.grad += -1 * out.grad;
+            if (this.data < 0) {
+                this.grad += -1 * out.grad;
             }
-           
+
         };
         return out;
     }
@@ -153,14 +182,15 @@ public class Value {
     @Override
     public String toString() {
         // if (this.grad == 0) {
-        //     return "";
+        // return "";
         // }
 
         if (this.data == -1) {
             return "negative node";
         }
-        //String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label, this.data, this.grad);
-         String output = String.format("%5.1f",this.data);
+        // String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label,
+        // this.data, this.grad);
+        String output = String.format("%5.1f", this.data);
         return output;
     }
 
