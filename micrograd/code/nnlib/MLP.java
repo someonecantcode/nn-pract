@@ -118,7 +118,7 @@ public class MLP extends Module {
         
         System.arraycopy(numberoutputs, 0, chaining, 1, numberoutputs.length);
         for(int i = 0; i < numberoutputs.length; i++) { 
-            this.layers[i] =  new Layer(chaining[i], chaining[i+1], (i != numberoutputs.length - 1)); //last one is activation RELU
+            this.layers[i] =  new Layer(chaining[i], chaining[i+1], (i == numberoutputs.length - 1)); //last one is activation RELU
         }
     }
 

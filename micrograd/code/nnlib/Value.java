@@ -118,7 +118,6 @@ public class Value {
         out._backward = () -> {
             this.grad += (out.data)*(1-out.data) * out.grad;
         };
-        System.out.println(out.data);
         return out;
     }
 

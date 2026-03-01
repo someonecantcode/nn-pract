@@ -71,7 +71,7 @@ public class MNIST {
                 System.out.println(Arrays.toString(preds[0]));
             }
 
-        } while (counter < 1); //loss >= 1e-1
+        } while (loss >= 1e-1);
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
@@ -123,7 +123,7 @@ public class MNIST {
     }
 
     public static void printInfo(Value data_loss, Value reg_loss, Value[] data) {
-        System.out.printf("loss: %.2f | reg_loss: %.3f | data: %s\n", data_loss.data, reg_loss.data,
+        System.out.printf("loss: %.3f | reg_loss: %.3f | data: %s\n", data_loss.data, reg_loss.data,
                 Arrays.toString(data));
     }
 
