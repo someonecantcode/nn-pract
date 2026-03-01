@@ -159,7 +159,8 @@ public class Value {
         if (this.data == -1) {
             return "negative node";
         }
-        String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label, this.data, this.grad);
+        //String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label, this.data, this.grad);
+         String output = String.format("%5.1f",this.data);
         return output;
     }
 

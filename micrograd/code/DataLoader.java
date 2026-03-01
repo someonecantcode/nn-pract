@@ -28,8 +28,8 @@ public class DataLoader {
         System.out.println(Arrays.toString(LabelHeader));
         System.out.println(Arrays.toString(ImageHeader));
 
-        for (int n = 0; n < 3; n++) {
-            displayImage(readImage());
+        for (int n = 0; n < 10; n++) {
+        //    displayImage(readImage());
             System.out.println(readLabel());
         }
 
@@ -52,7 +52,7 @@ public class DataLoader {
         return imageOutput;
     }
 
-    public void getHeader(FileInputStream fileReader, int[] header) throws IOException {
+    private void getHeader(FileInputStream fileReader, int[] header) throws IOException {
         for (int i = 0; i < header.length; i++) { // to fill the array
             header[i] = (fileReader.read() << 24) | (fileReader.read() << 16) | (fileReader.read() << 8) | (fileReader.read());
         }
@@ -63,7 +63,7 @@ public class DataLoader {
         this.LabelReader.close();
     }
 
-    private void displayImage(int[] imageOutput) {
+    public void displayImage(int[] imageOutput) {
         final int ROW_INDEX = 2;
         final int COL_INDEX = 3;
 
@@ -74,7 +74,7 @@ public class DataLoader {
                 int m = imageOutput[i*ImageHeader[ROW_INDEX]+j];
 
                 char brightness = CHAR_DENSITY_GRADIENT.charAt((m * (CHAR_DENSITY_GRADIENT.length() - 1)) / (255));
-                System.out.printf("%3c", brightness);
+                System.out.printf("%2c", brightness);
             }
             System.out.println();
         }
