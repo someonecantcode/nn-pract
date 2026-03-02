@@ -50,7 +50,7 @@ class Neuron extends Module {
 
         act = act.add(this.bias);
         act.label = "act_final";
-        return this.nonlinear ? act.RELU() : act; // RELU = 0 causes all gradients to be 0.
+        return this.nonlinear ? act.GELU() : act; // RELU = 0 causes all gradients to be 0.
     }
 
     @Override

@@ -109,6 +109,11 @@ public class Value {
         return out;
     }
 
+    public Value GELU() {
+        // https://arxiv.org/pdf/1606.08415
+        return this.mult((this.mult(new Value(1.702))).sigmoid());
+    }
+
     public Value tanh() {
         Value out = new Value(Math.tanh(this.data));
 
@@ -210,7 +215,7 @@ public class Value {
         }
         // String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label,
         // this.data, this.grad);
-        String output = String.format("%5.2f", this.data);
+        String output = String.format("%5.3f", this.data);
         return output;
     }
 

@@ -9,10 +9,17 @@ import nnlib.Value;
 public class MNIST {
 
     // hyper parameters
-    public static double LEARNING_RATE = 5e-2;
-    public static double ALPHA = 1e-3;
+    public static final double LEARNING_RATE = 1e-2;
+    public static final double ALPHA = 1e-3;
+    public static final double EPSILON = 1e-5;
 
-    public static long TOTAL_EPOCS = (long) 1e1;
+    // for adam :)
+    public static final double BETA_1 = 0.9;
+    public static final double BETA_2 = 0.999;
+    public static double[] m;
+    public static double[] v;
+
+    public static long TOTAL_EPOCS = (long) 5e1;
     public static DataLoader loader;
 
     public static final int OUTPUT_SIZE = 10;
@@ -23,55 +30,81 @@ public class MNIST {
         loader = new DataLoader("./data/train-labels.idx1-ubyte", "./data/train-images.idx3-ubyte");
         // loader.readDataTEST();
 
-        int[] layerparams = {32, 32, OUTPUT_SIZE};
-        MLP m = new MLP(28 * 28, layerparams);
+        int[] layerparams = {16, 16, OUTPUT_SIZE};
+        MLP mlp = new MLP(28 * 28, layerparams);
 
-        System.out.println(m.parameters().length);
+        System.out.println(mlp.parameters().length);
+        m = new double[mlp.parameters().length];
+        v = new double[mlp.parameters().length];
 
-        trainingLoop(m);
+        trainingLoop(mlp);
     }
 
-    public static void trainingLoop(MLP m) throws IOException {
+    public static void trainingLoop(MLP mlp) throws IOException {
         int howMany = 10;
-        int counter = 0;
-        double loss;
 
+        int step = 0;
+        int totalsteps = (int) 1e5;
+
+        int counter = 0;
+        int total_correct = 0;
+        double loss;
         do {
-            m.zeroGrad();
+            mlp.zeroGrad();
             // get Images + Labels;
             Value[][] expectedLabels = getLabels(howMany);
             Value[][] images = getImages(howMany);
-            
-            // System.out.println(Arrays.toString(images[0]));
-            // displayValueImage(images[0]);
+
             // feed forward + softmax
             Value[][] preds = new Value[howMany][OUTPUT_SIZE];
             for (int i = 0; i < preds.length; i++) {
-                preds[i] = softmax(m.call(images[i]));
+                preds[i] = softmax(mlp.call(images[i]));
             }
 
             // calc loss (L2 + Expected Loss)
-            Value reg_loss = getMSEParams(m.parameters()).mult(new Value(ALPHA));
+            Value reg_loss = getMSEParams(mlp.parameters()).mult(new Value(ALPHA));
             Value data_loss = getCrossEntropyLoss(preds, expectedLabels);
+
             // backwards prop -> grads
             Value total_loss = data_loss.add(reg_loss);
             loss = total_loss.data;
             total_loss.backwards();
 
-            // // grad descent
-            for (Value param : m.parameters()) {
-                param.data += LEARNING_RATE * -param.grad;
+            // grad descent + adam https://arxiv.org/pdf/1412.6980
+            double lrT = LEARNING_RATE * (1.0 - (double)step / totalsteps);
+
+            double mCorrection = (1 - Math.pow(BETA_1, step + 1));
+            double vCorrection = (1 - Math.pow(BETA_2, step + 1));
+            for (int i = 0; i < mlp.parameters().length; i++) {
+                Value param = mlp.parameters()[i];
+                m[i] = BETA_1 * m[i] + (1 - BETA_1) * param.grad;
+                v[i] = BETA_2 * v[i] + (1 - BETA_2) * (param.grad * param.grad);
+
+                double mHat = m[i] / mCorrection;
+                double vHat = v[i] / vCorrection;
+
+                param.data += -lrT * mHat / (Math.sqrt(vHat) + EPSILON );
             }
-            counter++;
+
+            step++;
+            // grade them + display
+            for (int i = 0; i < images.length; i++) {
+                counter++;
+                if (getMaxValueIndex(preds[i]) == getMaxValueIndex(expectedLabels[i])) {
+                    total_correct++;
+                }
+            }
 
             if (counter % TOTAL_EPOCS == 0) {
                 displayValueImage(images[0]);
                 System.out.println(Arrays.toString(expectedLabels[0]));
                 System.out.println(Arrays.toString(preds[0]));
                 System.out.println();
-                printInfo(data_loss, reg_loss, preds, expectedLabels);
+                printInfo(getAccuracy(total_correct, counter), data_loss, reg_loss, preds, expectedLabels);
+                counter = 0;
+                total_correct = 0;
             }
-        } while (counter < 1000); //loss >= 1e-5 
+        } while (step < totalsteps); // loss >= 1e-3
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
@@ -122,12 +155,15 @@ public class MNIST {
         loader.displayImage(convertValueArraytoDoubleArray(input));
     }
 
-    public static void printInfo(Value data_loss, Value reg_loss, Value[][] data, Value[][] expected) {
+    public static void printInfo(double accuracy, Value data_loss, Value reg_loss, Value[][] data, Value[][] expected) {
         for (int i = 0; i < data.length; i++) {
-            System.out.printf("loss: %.3f | reg_loss: %.3f | data: %s | data: %s | expected: %s\n", data_loss.data, reg_loss.data,
+            System.out.printf("accuracy: %2.2f %% | loss: %.3f | reg_loss: %.3f | data: %s | data: %s | expected: %s\n", accuracy * 100, data_loss.data, reg_loss.data,
                     Arrays.toString(data[i]), getMaxValueIndex(data[i]), getMaxValueIndex(expected[i]));
         }
+    }
 
+    public static double getAccuracy(int correct, int total) {
+        return (double) correct / total;
     }
 
     public static int getMaxValueIndex(Value[] input) {
@@ -161,8 +197,6 @@ public class MNIST {
     }
 
     public static Value getCrossEntropyLoss(Value[][] softmax_outputs, Value[][] expected) {
-        final double EPSILON = 1e-8;
-
         List<Value> losses = new ArrayList<>();
         Value loss_output;
 
