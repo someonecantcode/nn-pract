@@ -29,7 +29,7 @@ public class DataLoader {
         System.out.println(Arrays.toString(ImageHeader));
 
         for (int n = 0; n < 10; n++) {
-        //    displayImage(readImage());
+            displayImage(readImage());
             System.out.println(readLabel());
         }
 
@@ -39,14 +39,14 @@ public class DataLoader {
         return (this.LabelReader.read());
     }
 
-    public int[] readImage() throws IOException {
+    public double[] readImage() throws IOException {
         // [magicnumber, #images, row, col]
         final int ROW_INDEX = 2;
         final int COL_INDEX = 3;
 
-        int[] imageOutput = new int[ImageHeader[ROW_INDEX] * ImageHeader[COL_INDEX]];
+        double[] imageOutput = new double[ImageHeader[ROW_INDEX] * ImageHeader[COL_INDEX]];
         for (int i = 0; i < imageOutput.length; i++) {
-            imageOutput[i] = this.ImageReader.read();
+            imageOutput[i] = this.ImageReader.read() / 255.0; // 0~255. to normalize it
         }
 
         return imageOutput;
@@ -63,7 +63,7 @@ public class DataLoader {
         this.LabelReader.close();
     }
 
-    public void displayImage(int[] imageOutput) {
+    public void displayImage(double[] imageOutput) {
         final int ROW_INDEX = 2;
         final int COL_INDEX = 3;
 
@@ -71,9 +71,9 @@ public class DataLoader {
 
         for (int i = 0; i < ImageHeader[COL_INDEX]; i++) { // first image
             for (int j = 0; j < ImageHeader[ROW_INDEX]; j++) {
-                int m = imageOutput[i*ImageHeader[ROW_INDEX]+j];
+                double m = imageOutput[i*ImageHeader[ROW_INDEX]+j];
+                char brightness = CHAR_DENSITY_GRADIENT.charAt((int) (m * (CHAR_DENSITY_GRADIENT.length() - 1)));
 
-                char brightness = CHAR_DENSITY_GRADIENT.charAt((m * (CHAR_DENSITY_GRADIENT.length() - 1)) / (255));
                 System.out.printf("%2c", brightness);
             }
             System.out.println();

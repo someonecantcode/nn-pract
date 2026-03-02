@@ -149,6 +149,17 @@ public class Value {
         return out;
     }
 
+    public Value ln() {
+        Value out = new Value(Math.log(this.data));
+
+        out.label = "ln";
+        out.prev_children.add(this);
+        out._backward = () -> {
+            this.grad += Math.pow(this.data, -1) * out.grad;
+        };
+        return out;
+    }
+
     public Value div(Value b) {
         return this.mult(b.pow(-1));
     }
@@ -199,7 +210,7 @@ public class Value {
         }
         // String output = String.format("Value %s: %5.1f Gradient: %5.4f", this.label,
         // this.data, this.grad);
-        String output = String.format("%5.1f", this.data);
+        String output = String.format("%5.2f", this.data);
         return output;
     }
 

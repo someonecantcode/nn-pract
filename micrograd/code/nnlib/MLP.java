@@ -1,6 +1,7 @@
 package nnlib;
 
 import java.util.Arrays;
+import java.util.Random;
 
 abstract class Module {
 
@@ -22,7 +23,9 @@ class Neuron extends Module {
     public Neuron(int totalinput, boolean nonlinear) {
         weights = new Value[totalinput];
         for (int i = 0; i < totalinput; i++) {
-            weights[i] = new Value((Math.random() * 2) - 1);
+            // He initialization
+            double scale =  Math.sqrt(2.0 / totalinput);
+            weights[i] = new Value(new Random().nextGaussian() * scale);
             weights[i].label = "w" + i;
             // optimized weights[i] = ThreadLocalRandom.current().nextDouble(-1.0, 1.0);
         }
@@ -47,7 +50,7 @@ class Neuron extends Module {
 
         act = act.add(this.bias);
         act.label = "act_final";
-        return this.nonlinear ? act.sigmoid() : act; // RELU = 0 causes all gradients to be 0.
+        return this.nonlinear ? act.RELU() : act; // RELU = 0 causes all gradients to be 0.
     }
 
     @Override

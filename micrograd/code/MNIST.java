@@ -1,18 +1,18 @@
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import nnlib.MLP;
 import nnlib.Value;
 
 public class MNIST {
 
     // hyper parameters
-    public static double LEARNING_RATE = 1e-1;
-    public static double ALPHA = 1e-1;
+    public static double LEARNING_RATE = 5e-2;
+    public static double ALPHA = 1e-3;
 
-    public static long TOTAL_EPOCS = (long) 1e4;
+    public static long TOTAL_EPOCS = (long) 1e1;
     public static DataLoader loader;
 
     public static final int OUTPUT_SIZE = 10;
@@ -20,10 +20,10 @@ public class MNIST {
     // so we have inputs, [784 value(0), ... , value(0)] -> mlp -> [10 value(0),...,
     // value(9)] (1entry)
     public static void main(String[] args) throws IOException {
-        loader = new DataLoader("./data/t10k-labels.idx1-ubyte", "./data/t10k-images.idx3-ubyte");
+        loader = new DataLoader("./data/train-labels.idx1-ubyte", "./data/train-images.idx3-ubyte");
         // loader.readDataTEST();
 
-        int[] layerparams = { 16, 16, OUTPUT_SIZE };
+        int[] layerparams = {32, 32, OUTPUT_SIZE};
         MLP m = new MLP(28 * 28, layerparams);
 
         System.out.println(m.parameters().length);
@@ -32,7 +32,7 @@ public class MNIST {
     }
 
     public static void trainingLoop(MLP m) throws IOException {
-        int howMany = 1;
+        int howMany = 10;
         int counter = 0;
         double loss;
 
@@ -41,37 +41,37 @@ public class MNIST {
             // get Images + Labels;
             Value[][] expectedLabels = getLabels(howMany);
             Value[][] images = getImages(howMany);
+            
             // System.out.println(Arrays.toString(images[0]));
             // displayValueImage(images[0]);
-
             // feed forward + softmax
             Value[][] preds = new Value[howMany][OUTPUT_SIZE];
             for (int i = 0; i < preds.length; i++) {
-                preds[i] = m.call(images[i]);
+                preds[i] = softmax(m.call(images[i]));
             }
 
             // calc loss (L2 + Expected Loss)
             Value reg_loss = getMSEParams(m.parameters()).mult(new Value(ALPHA));
-            Value data_loss = getMSELoss(preds, expectedLabels);
-
+            Value data_loss = getCrossEntropyLoss(preds, expectedLabels);
             // backwards prop -> grads
             Value total_loss = data_loss.add(reg_loss);
             loss = total_loss.data;
             total_loss.backwards();
 
-            // grad descent
-            printInfo(data_loss, reg_loss, preds[0]);
+            // // grad descent
             for (Value param : m.parameters()) {
                 param.data += LEARNING_RATE * -param.grad;
             }
             counter++;
-            if(counter % 50 == 0) {
+
+            if (counter % TOTAL_EPOCS == 0) {
                 displayValueImage(images[0]);
                 System.out.println(Arrays.toString(expectedLabels[0]));
                 System.out.println(Arrays.toString(preds[0]));
+                System.out.println();
+                printInfo(data_loss, reg_loss, preds, expectedLabels);
             }
-
-        } while (loss >= 1e-1);
+        } while (counter < 1000); //loss >= 1e-5 
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
@@ -86,7 +86,7 @@ public class MNIST {
     public static Value[][] getImages(int howMany) throws IOException {
         Value[][] images = new Value[howMany][784];
         for (int i = 0; i < images.length; i++) {
-            images[i] = convertIntArraytoValueArray(loader.readImage());
+            images[i] = convertDoubleArraytoValueArray(loader.readImage());
         }
         return images;
     }
@@ -102,7 +102,7 @@ public class MNIST {
         return output;
     }
 
-    public static Value[] convertIntArraytoValueArray(int[] input) {
+    public static Value[] convertDoubleArraytoValueArray(double[] input) {
         Value[] output = new Value[input.length];
         for (int i = 0; i < input.length; i++) {
             output[i] = new Value(input[i]);
@@ -110,28 +110,79 @@ public class MNIST {
         return output;
     }
 
-    public static int[] convertValueArraytoIntArray(Value[] input) { // for image displaying
-        int[] output = new int[input.length];
+    public static double[] convertValueArraytoDoubleArray(Value[] input) { // for image displaying
+        double[] output = new double[input.length];
         for (int i = 0; i < input.length; i++) {
-            output[i] = (int) input[i].data;
+            output[i] = input[i].data;
         }
         return output;
     }
 
     public static void displayValueImage(Value[] input) {
-        loader.displayImage(convertValueArraytoIntArray(input));
+        loader.displayImage(convertValueArraytoDoubleArray(input));
     }
 
-    public static void printInfo(Value data_loss, Value reg_loss, Value[] data) {
-        System.out.printf("loss: %.3f | reg_loss: %.3f | data: %s\n", data_loss.data, reg_loss.data,
-                Arrays.toString(data));
+    public static void printInfo(Value data_loss, Value reg_loss, Value[][] data, Value[][] expected) {
+        for (int i = 0; i < data.length; i++) {
+            System.out.printf("loss: %.3f | reg_loss: %.3f | data: %s | data: %s | expected: %s\n", data_loss.data, reg_loss.data,
+                    Arrays.toString(data[i]), getMaxValueIndex(data[i]), getMaxValueIndex(expected[i]));
+        }
+
+    }
+
+    public static int getMaxValueIndex(Value[] input) {
+        int index = 0;
+        for (int i = 0; i < input.length; i++) {
+            if (input[i].data > input[index].data) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    public static Value[] softmax(Value[] input) {
+        // find max number
+        Value max = new Value(input[getMaxValueIndex(input)].data);
+        Value[] softmax_output = new Value[input.length];
+        // first sum e^z
+        List<Value> input_exp = new ArrayList<>();
+        for (int i = 0; i < input.length; i++) {
+            softmax_output[i] = (input[i].sub(max)).exp();
+            input_exp.add(softmax_output[i]);
+        }
+        Value sum = Value.sum(input_exp);
+
+        // e^z / sum
+        for (int i = 0; i < softmax_output.length; i++) {
+            softmax_output[i] = softmax_output[i].div(sum);
+        }
+
+        return softmax_output;
+    }
+
+    public static Value getCrossEntropyLoss(Value[][] softmax_outputs, Value[][] expected) {
+        final double EPSILON = 1e-8;
+
+        List<Value> losses = new ArrayList<>();
+        Value loss_output;
+
+        for (int i = 0; i < softmax_outputs.length; i++) {
+            for (int j = 0; j < softmax_outputs[i].length; j++) {
+                // expected * log(softmax(pred))
+                Value ln_softmax = (softmax_outputs[i][j].add(new Value(EPSILON))).ln();
+                Value calc = expected[i][j].mult(ln_softmax);
+                losses.add(calc);
+            }
+        }
+
+        loss_output = Value.sum(losses);
+        loss_output = loss_output.div(new Value(softmax_outputs.length));
+        return loss_output.neg();
     }
 
     public static Value getMSELoss(Value[][] outputs, Value[][] expected) {
-        assert (outputs.length == expected.length)
-                : "OUTER Predicted output value size not equal to expected value size.";
-        assert (outputs[0].length == expected[0].length)
-                : "INNER Predicted output value size not equal to expected value size.";
+        assert (outputs.length == expected.length) : "OUTER Predicted output value size not equal to expected value size.";
+        assert (outputs[0].length == expected[0].length) : "INNER Predicted output value size not equal to expected value size.";
 
         List<Value> losses = new ArrayList<>();
         Value loss_output;
@@ -144,20 +195,11 @@ public class MNIST {
                 losses.add(calc);
             }
         }
-        
+
         loss_output = Value.sum(losses);
         loss_output = loss_output.div(new Value(outputs.length * outputs[0].length));
 
         return loss_output;
-    }
-
-    // public static Value[] softmax(Value[] input) {
-    //     // first sum e^z
-        
-    // }
-
-    public static Value getCrossEntropyLoss(Value[][] outputs, Value[][] expected) {
-        return new Value(0);
     }
 
     public static Value getMSEParams(Value[] params) {
