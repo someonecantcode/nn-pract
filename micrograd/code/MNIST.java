@@ -71,21 +71,8 @@ public class MNIST {
             total_loss.backwards();
 
             // grad descent + adam https://arxiv.org/pdf/1412.6980
-            double lrT = LEARNING_RATE * (1.0 - (double)step / totalsteps);
-
-            double mCorrection = (1 - Math.pow(BETA_1, step + 1));
-            double vCorrection = (1 - Math.pow(BETA_2, step + 1));
-            for (int i = 0; i < mlp.parameters().length; i++) {
-                Value param = mlp.parameters()[i];
-                m[i] = BETA_1 * m[i] + (1 - BETA_1) * param.grad;
-                v[i] = BETA_2 * v[i] + (1 - BETA_2) * (param.grad * param.grad);
-
-                double mHat = m[i] / mCorrection;
-                double vHat = v[i] / vCorrection;
-
-                param.data += -lrT * mHat / (Math.sqrt(vHat) + EPSILON );
-            }
-
+            double lrT = LEARNING_RATE * (1.0 - (double) step / totalsteps);
+            SGD(mlp, lrT);
             step++;
             // grade them + display
             for (int i = 0; i < images.length; i++) {
@@ -247,5 +234,28 @@ public class MNIST {
         loss_output = Value.sum(params_squared);
         loss_output = loss_output.div(new Value(params.length));
         return loss_output;
+    }
+
+    public static void SGD(MLP mlp, double lrT) {
+        for (int i = 0; i < mlp.parameters().length; i++) {
+            Value param = mlp.parameters()[i];
+
+            param.data += lrT * -param.grad;
+        }
+    }
+
+    public static void adam(MLP mlp, double lrT, int step) {
+        double mCorrection = (1 - Math.pow(BETA_1, step + 1));
+        double vCorrection = (1 - Math.pow(BETA_2, step + 1));
+        for (int i = 0; i < mlp.parameters().length; i++) {
+            Value param = mlp.parameters()[i];
+            m[i] = BETA_1 * m[i] + (1 - BETA_1) * param.grad;
+            v[i] = BETA_2 * v[i] + (1 - BETA_2) * (param.grad * param.grad);
+
+            double mHat = m[i] / mCorrection;
+            double vHat = v[i] / vCorrection;
+
+            param.data += -lrT * mHat / (Math.sqrt(vHat) + EPSILON);
+        }
     }
 }
