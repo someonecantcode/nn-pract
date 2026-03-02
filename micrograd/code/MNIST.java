@@ -9,9 +9,9 @@ import nnlib.Value;
 public class MNIST {
 
     // hyper parameters
-    public static final double LEARNING_RATE = 1e-2;
+    public static final double LEARNING_RATE = 5e-2;
     public static final double ALPHA = 1e-3;
-    public static final double EPSILON = 1e-5;
+    public static final double EPSILON = 1e-8;
 
     // for adam :)
     public static final double BETA_1 = 0.9;
@@ -19,7 +19,7 @@ public class MNIST {
     public static double[] m;
     public static double[] v;
 
-    public static long TOTAL_EPOCS = (long) 5e1;
+    public static long TOTAL_EPOCS = (long) 1e2;
     public static DataLoader loader;
 
     public static final int OUTPUT_SIZE = 10;
@@ -237,18 +237,20 @@ public class MNIST {
     }
 
     public static void SGD(MLP mlp, double lrT) {
-        for (int i = 0; i < mlp.parameters().length; i++) {
-            Value param = mlp.parameters()[i];
+        Value[] params = mlp.parameters();
 
-            param.data += lrT * -param.grad;
+        for (int i = 0; i < params.length; i++) {
+            params[i].data += lrT * -params[i].grad;
         }
     }
 
     public static void adam(MLP mlp, double lrT, int step) {
         double mCorrection = (1 - Math.pow(BETA_1, step + 1));
         double vCorrection = (1 - Math.pow(BETA_2, step + 1));
-        for (int i = 0; i < mlp.parameters().length; i++) {
-            Value param = mlp.parameters()[i];
+        Value[] params = mlp.parameters();
+
+        for (int i = 0; i < params.length; i++) {
+            Value param = params[i];
             m[i] = BETA_1 * m[i] + (1 - BETA_1) * param.grad;
             v[i] = BETA_2 * v[i] + (1 - BETA_2) * (param.grad * param.grad);
 
