@@ -9,7 +9,7 @@ import nnlib.Value;
 public class MNIST {
 
     // hyper parameters
-    public static final double LEARNING_RATE = 5e-2;
+    public static final double LEARNING_RATE = 3e-3;
     public static final double ALPHA = 1e-3;
     public static final double EPSILON = 1e-8;
 
@@ -72,7 +72,7 @@ public class MNIST {
 
             // grad descent + adam https://arxiv.org/pdf/1412.6980
             double lrT = LEARNING_RATE * (1.0 - (double) step / totalsteps);
-            SGD(mlp, lrT);
+            adam(mlp, lrT, step);
             step++;
             // grade them + display
             for (int i = 0; i < images.length; i++) {
