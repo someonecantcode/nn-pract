@@ -1,0 +1,74 @@
+\section{Draft: Creating a Program to read MNIST numbers}
+
+First, we initialize an MLP with an input size and layer params. The layer params are 
+simply the size of each layer. 
+
+After that, we run a training loop. A training loop is simply composed of these fundamental steps:
+
+sequentual bullet points.
+
+Zero out all of the local gradients. 
+Feedforward the input through the MLP an obtain an output.
+Calculate the loss with the output.
+Potentially reduce the loss with gradient descent.
+
+Repeat with a new batch of data.
+
+Time to break down each indidivual step.
+We must zero out all of the local gradients because we don't want any past calculations to 
+interfere. Basically just a clean slate.
+
+Feed forward is just running the input through the MLP. This is usually done in matrices or tensors.
+
+With the output, we can calculate how far off we are and grade the model. Our goal for the MLP is to 
+reduce the loss calculated. We can punish the model by having a larger loss. This brings us to loss functions
+that use this relationship of the magnitude of wrongness to the magnitude of loss. There is simple error loss,
+mean squared loss, and cross entropy loss. 
+
+Now we must reduce the loss as much as possible which is in the direction of the gradients. We run back 
+propogration through each operaiton to obtain all the local derivatives. Think of the local derviatives as 
+a ratio of how much each individual component helps toward the output. Almost like ingredients toward a dish.
+After, simply adjust the weights and biases in the direction of the gradient. If we want to increase the value,
+positive gradient and decrease the value, negative gradient. Comes in theory with the directional derivative and 
+the dot product that has a cosine function. 
+
+\subsection{MNIST training loop}
+
+In the case with the NNIST loop, we go through each component of the training loop one by one and build it.
+When buildinging, it's important to test each component instead of writing all at once. First we obtain the data
+as a 784 (28 x 28 image) vector and additionally normalize every value which is to divide by 255. We get this number 
+because the data is in the form of brightness values from 0-255 hence the normalization factor. We additionally obtain 
+the proper correct label to check in the loss function. 
+
+Now feed forward and obtain an output vector. I decided for an 10 size output vector for each number from 0-9. We run this
+softmax to gain a "percentage" distrubution of numbers and to clamp them from 0-1. This is import due to the one-hot labelling
+used for calculating the loss.
+
+I implemented both mean squared and cross entropy loss. In comparison with the one-hot label, we can compare that with our 10 size
+output vector. Mean squared simply sums all of the the squared difference between each index and normalizing it with the size. 
+(Hence the name mean square.) Cross entropy takes the sum of the expected value multiplied by the log of the predicted output value.
+
+Given here are the algorithms.
+
+\begin{definition}[Mean Square Loss]
+    \begin{equation}
+        \mathcal{L}(x) = \frac{\sum_{i}^{n} (\text{expected}_i - \text{predicted}_i)^{2}}{n} 
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Cross Entropy Loss]
+    \begin{equation}
+        \mathcal{L}(x) = \frac{\sum_{i}^{n} (\text{expected}_i \cdot \log\left(\text{softmax}(\text{predicted}_i) \right))^{2}}{n} 
+    \end{equation}
+\end{definition}
+
+Run back propogration and now gradient descent.
+\begin{align*}
+    D_{\mathbf{\hat{u}}} \, f  =& \nabla f \cdot \hat{u} \\
+                                  =& |\nabla f| \, \cancelto{1}{|\hat{u}|} \cos\left(\theta\right), \quad -1 \leq \cos\left(\theta\right) f \leq 1
+\end{align*}
+
+\begin{equation}
+    \Longrightarrow - \nabla f \leq D_{\mathbf{\hat{u}}} \, f \leq \nabla f
+\end{equation}
+
