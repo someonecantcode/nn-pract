@@ -3,8 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import nnlib.MLP;
-import nnlib.Value;
+import nnlib.*;
 
 public class MNIST {
 
@@ -20,24 +19,29 @@ public class MNIST {
     public static double[] v;
 
     public static long TOTAL_EPOCS = (long) 1e2;
-    public static DataLoader loader;
-
     public static final int OUTPUT_SIZE = 10;
+    public static DataLoader loader;
+    public static ModelSaver saver;
 
     // so we have inputs, [784 value(0), ... , value(0)] -> mlp -> [10 value(0),...,
     // value(9)] (1entry)
     public static void main(String[] args) throws IOException {
         loader = new DataLoader("./data/train-labels.idx1-ubyte", "./data/train-images.idx3-ubyte");
+        saver = new ModelSaver();
         // loader.readDataTEST();
 
         int[] layerparams = {16, 16, OUTPUT_SIZE};
         MLP mlp = new MLP(28 * 28, layerparams);
 
-        System.out.println(mlp.parameters().length);
-        m = new double[mlp.parameters().length];
-        v = new double[mlp.parameters().length];
+        Value[] params = mlp.parameters(); // caching it
+        saver.loadModel("MNIST_MODEL1", params);
 
+        System.out.println(params.length);
+        m = new double[params.length];
+        v = new double[params.length];
         trainingLoop(mlp);
+
+        saver.saveModel("MNIST_MODEL1", mlp.parameters());
     }
 
     public static void trainingLoop(MLP mlp) throws IOException {
@@ -72,7 +76,7 @@ public class MNIST {
 
             // grad descent + adam https://arxiv.org/pdf/1412.6980
             double lrT = LEARNING_RATE * (1.0 - (double) step / totalsteps);
-            adam(mlp, lrT, step);
+            ADAM(mlp, lrT, step);
             step++;
             // grade them + display
             for (int i = 0; i < images.length; i++) {
@@ -91,7 +95,7 @@ public class MNIST {
                 counter = 0;
                 total_correct = 0;
             }
-        } while (step < totalsteps); // loss >= 1e-3
+        } while (step < howMany * 500); // loss >= 1e-3
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
@@ -244,7 +248,7 @@ public class MNIST {
         }
     }
 
-    public static void adam(MLP mlp, double lrT, int step) {
+    public static void ADAM(MLP mlp, double lrT, int step) {
         double mCorrection = (1 - Math.pow(BETA_1, step + 1));
         double vCorrection = (1 - Math.pow(BETA_2, step + 1));
         Value[] params = mlp.parameters();
