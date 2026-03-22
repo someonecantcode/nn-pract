@@ -9,7 +9,7 @@ public class MNIST {
 
     // hyper parameters
     public static final double LEARNING_RATE = 3e-3;
-    public static final double ALPHA = 1e-3;
+    public static final double ALPHA = 1e-2;
     public static final double EPSILON = 1e-8;
 
     // for adam :)
@@ -35,7 +35,7 @@ public class MNIST {
 
         Value[] params = mlp.parameters(); // caching it
         saver.loadModel("MNIST_MODEL1", params);
-
+        
         System.out.println(params.length);
         m = new double[params.length];
         v = new double[params.length];
@@ -45,7 +45,7 @@ public class MNIST {
     }
 
     public static void trainingLoop(MLP mlp) throws IOException {
-        int howMany = 10;
+        int howMany = (int) TOTAL_EPOCS / 10;
 
         int step = 0;
         int totalsteps = (int) 1e5;
@@ -95,7 +95,7 @@ public class MNIST {
                 counter = 0;
                 total_correct = 0;
             }
-        } while (step < howMany * 500); // loss >= 1e-3
+        } while (step < TOTAL_EPOCS * 50); // loss >= 1e-3
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
@@ -148,7 +148,7 @@ public class MNIST {
 
     public static void printInfo(double accuracy, Value data_loss, Value reg_loss, Value[][] data, Value[][] expected) {
         for (int i = 0; i < data.length; i++) {
-            System.out.printf("accuracy: %2.2f %% | loss: %.3f | reg_loss: %.3f | data: %s | data: %s | expected: %s\n", accuracy * 100, data_loss.data, reg_loss.data,
+            System.out.printf("accuracy: %2.2f %% | loss: %.5f | reg_loss: %.5f | data: %s | data: %s | expected: %s\n", accuracy * 100, data_loss.data, reg_loss.data,
                     Arrays.toString(data[i]), getMaxValueIndex(data[i]), getMaxValueIndex(expected[i]));
         }
     }
