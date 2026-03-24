@@ -72,10 +72,10 @@ its choices.
 
 Optimizations were imperative to improving training speed and accuracy.
 For example, switching to cross entropy loss was better suited for the values than 1 as mean squared loss
-would make decimal values actually smaller. Additionally, using GELU instead of RELU helped reduce
-vanishing gradients. Something to realize is that the images are always centered and therefore the
+would make decimal values actually smaller \cite{Mao2023crossentropy}. Additionally, using GELU instead of RELU helped reduce
+vanishing gradients \cite{hendrycks2016gelu}. Something to realize is that the images are always centered and therefore the
 outer edge nodes should have no activation. Pruning out those values helped improve computer time.
-The most vital improvement was the Adam optimizer with two moments that accelerated convergence. All of 
+The most vital improvement was the Adam optimizer with two moments that accelerated convergence (\cite{kingma2017adam}). All of 
 this all together trained on 1 epoch resulted a peak accuracy of 92$\sim$\%.
 
 \begin{figure}[H]
