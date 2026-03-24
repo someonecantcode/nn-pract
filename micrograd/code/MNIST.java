@@ -25,6 +25,8 @@ public class MNIST {
 
     // so we have inputs, [784 value(0), ... , value(0)] -> mlp -> [10 value(0),...,
     // value(9)] (1entry)
+    public static ArrayList<Double> acc = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
         loader = new DataLoader("./data/train-labels.idx1-ubyte", "./data/train-images.idx3-ubyte");
         saver = new ModelSaver();
@@ -34,14 +36,15 @@ public class MNIST {
         MLP mlp = new MLP(28 * 28, layerparams);
 
         Value[] params = mlp.parameters(); // caching it
-        saver.loadModel("MNIST_MODEL1", params);
+        saver.loadModel("MNIST_MODEL2", params);
 
         System.out.println(params.length);
         m = new double[params.length];
         v = new double[params.length];
         trainingLoop(mlp);
 
-        saver.saveModel("MNIST_MODEL1", mlp.parameters());
+        saver.saveModel("MNIST_MODEL2", mlp.parameters());
+        saver.saveAccuracy(acc);
     }
 
     public static void trainingLoop(MLP mlp) throws IOException {
@@ -94,10 +97,11 @@ public class MNIST {
                 System.out.println(Arrays.toString(preds[0]));
                 System.out.println();
                 printInfo(getAccuracy(total_correct, counter), data_loss, reg_loss, preds, expectedLabels);
+                acc.add(getAccuracy(total_correct, counter));
                 counter = 0;
                 total_correct = 0;
             }
-        } while (step < TOTAL_EPOCS * 50); // loss >= 1e-3
+        } while (step < TOTAL_EPOCS * 10); // loss >= 1e-3
     }
 
     public static void offsetData(int howMany) throws IOException {

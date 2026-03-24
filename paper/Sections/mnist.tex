@@ -1,57 +1,84 @@
 % Contents
+First, we initialize an MLP with an input size and layer params. The layer params are 
+simply the size of each layer. 
 
-\subsection{The introduction}\label{sec:_the_introduction}
-As mentioned above, the introduction and conclusion together must give a complete and comprehensible picture of your thesis. This is for the time-poor readers whose interest has been aroused by the abstract but do not have time to read the full thesis, or who in any case need to decide whether they want to devote time to reading it.
+After that, we will run a training loop. A training loop is simply composed of these fundamental steps:
+\begin{enumerate}
+    \item Zero out all of the local gradients. 
+    \item Feedforward the input through the MLP an obtain an output.
+    \item Calculate the loss with the output.
+    \item Potentially reduce the loss with gradient descent.
+\end{enumerate}
 
-Your introduction should therefore set out the context of the work (why it is relevant, who has worked on the subject before), the specific question (with an explanation of how it contributes to our understanding of the subject) and a summary of the techniques and analysis methods used. Obviously, the introduction is not the place for a highly detailed discussion of the methods and techniques. In the case of long texts in particular, the discussion of the context and related work may be spread over several chapters. This does not alter the fact that it should be possible to read the introduction and the conclusion on a `stand-alone' basis.
+% Repeat with a new batch of data.
 
-The introduction should convince the reader that your work is useful and exciting/interesting, that you know what you are talking about and understand why you researched the subject in the way you describe.
+% Time to break down each indidivual step.
+% We must zero out all of the local gradients because we don't want any past calculations to 
+% interfere. Basically just a clean slate.
 
-Introductions often end with a summary of what follows in the rest of the thesis. This is only useful if it makes the thesis easier to read. For example, it is useful to point out that Chapter 3 is only relevant for people who are interested in the mathematics of your model, and others therefore do not need to read it. It is not useful to point out that Chapter 2 describes the model, Chapter 3 contains the results and Chapter 4 the conclusion. The reader can see this from the table of contents. In the case of bachelor theses it is not necessary at all to point it out, as such theses are relatively short.
+% Feed forward is just running the input through the MLP. This is usually done in matrices or tensors.
 
-\subsection{The system / methods}\label{sec:_system_methods}
-The description of the system and/or method must focus on reproducibility. In the case of a computer program, sufficient detail must be provided to enable the programming to be repeated. In the case of an experimental setup, this means that sufficient details should be given so that the precise experiment can be repeated. 
+% With the output, we can calculate how far off we are and grade the model. Our goal for the MLP is to 
+% reduce the loss calculated. We can punish the model by having a larger loss. This brings us to loss functions
+% that use this relationship of the magnitude of wrongness to the magnitude of loss. There is simple error loss,
+% mean squared loss, and cross entropy loss. 
 
-For experimental papers, there is a much used, and therefore more or less standard structure. It is  highly recommended to adhere to such a standard structure. It helps the reader because they know where to look for particular information, and it helps you as a writer because it is easier not to forget things.
+% Now we must reduce the loss as much as possible which is in the direction of the gradients. We run back 
+% propogration through each operaiton to obtain all the local derivatives. Think of the local derviatives as 
+% a ratio of how much each individual component helps toward the output. Almost like ingredients toward a dish.
+% After, simply adjust the weights and biases in the direction of the gradient. If we want to increase the value,
+% positive gradient and decrease the value, negative gradient. Comes in theory with the directional derivative and 
+% the dot product that has a cosine function. 
 
-In both cases, only relevant details should be given. Just as, in the case of an fMRI experiment, the colour of the pyjamas worn by the test subjects is unimportant but the type and settings of the MRI machine \textit{are} important, in the case of programs it is important to describe precisely \textit{what} happens, but not precisely \textit{how} this was programmed. The description therefore needs to be above the source-code level.  Often, the best way is to describe in general how the system works and then discuss its individual components. Ultimately, everything must be substantiated with formulae and tables of pseudo code.
+\subsection{MNIST training loop}
 
-The reasons behind certain choices in the system should also be given. In many cases, certain aspects of the system can be executed in many different ways. It is therefore necessary to explain why a certain method of execution was chosen and why the alternatives were rejected. It is helpful to place these choices in the wider context of the research, as outlined in the introduction and research question. Describing the system therefore involves more than simply describing what you built!
+In the case with the MNIST dataset, we go through each component of the training loop one by one and build it. First we obtain the data
+as a 784 (28 x 28 image) vector and normalize every value which is to divide by 255. We obtain this number 
+because the data is in the form of brightness values from 0-255 hence the normalization factor. We additionally obtain 
+the proper correct label to check for the loss function. Now, feed forward and obtain an output vector. I decided for an 10 size output vector for each number from 0-9. We run this
+softmax to gain a "percentage" distrubution of numbers and to clamp them from 0-1. 
 
-Importantly, remember to include the values of all the parameters used in your system! The best way to do this is to present them in a table in a central position.
+I implemented both mean squared and cross entropy loss. In comparison with the one-hot label, we can compare that with our 10 size
+output vector. Mean squared simply sums all of the the squared difference between each index and normalizing it with the size. 
+(Hence the name mean square.) Cross entropy takes the sum of the expected value multiplied by the log of the predicted output value.
+In the following section, we can compare both loss functions and their effectiveness.
 
-The description in the system/method section goes beyond the description of the computer model or experiment that was used. The techniques used to analyse the behaviour of the system (or the model, or the experimental subjects) should also be described. In many cases, a computer model or an experiment generates sizeable volumes of data that, in their raw form, are too large and complex to draw a conclusion from. In such cases, measures need to be defined for calculations using the data. These may be averages, or aspects such as the diversity of the system, learning success, rate of convergence, etc. The calculations must be clearly described, and reasons given for the choice of measures. For experiments, this means that the method section also describes how the raw data were collected, averaged, and processed to make it ready for statistical testing. The statistical tests must also be described, together with the reasons to use those.
+Given here are the algorithms.
 
-\subsection{The results}\label{sec:_the_results}
-When you present your results, you are presenting the essence of the message you wish to convey. This is the opportunity to show what you have discovered and how your findings shed light on the research question. Two things are important in order to do this successfully: selection and presentation.
+\begin{definition}[Mean Square Loss]
+    \begin{equation}
+        \mathcal{L}(x) = \frac{\sum_{i}^{n} (\text{expected}_i - \text{predicted}_i)^{2}}{n} 
+    \end{equation}
+\end{definition}
 
-The importance of selecting results is something that young scientists/academics often overlook. Surely every result is important? Yes and no. It is natural to want to present every single result that  you have obtained from your model with blood, sweat and tears. The risk, however, is that you will overload the reader with results that are not relevant to your research question. It is therefore important to present only the results that shed light on your research question. 
+\begin{definition}[Cross Entropy Loss]
+    \begin{equation}
+        \mathcal{L}(x) = \frac{\sum_{i}^{n} (\text{expected}_i \cdot \log\left(\text{softmax}(\text{predicted}_i) \right))^{2}}{n} 
+    \end{equation}
+\end{definition}
 
-This does not alter the fact that not all your interesting findings relate directly to the research question. There are plenty of studies that have produced different and much more interesting results that do not relate to the original purpose of the study. But that is something for your next publication. The research for your thesis had a specific aim and, given the limited amount of time available, it is sensible to keep the focus on the research question you formulated at the outset.
+\subsection{Initial Results}
 
-The second problem is how to present the results. It goes without saying that they should be presented as clearly as possible. Unfortunately, it is not possible to say briefly which format is suitable in each case. However, there are certain guidelines that may be followed.
+Running the training loop resulted in slow convergence in loss and a peak accuracy of
+around 92$\sim$\%. Looking at the softmax output vector, it seems to have low confidence in 
+its choices.
 
-Graphs are useful for presenting large volumes of data. If there is a relationship between the data (e.g. data points in a time series), a line graph should be used. If no such relationship exists, a bar chart is preferable. If the results consist of components that add up to a whole, it is a good idea to present them in a pie chart, and sometimes it is useful to think up a graph of your own. A number of conventions for producing decent graphs are discussed in Section 4.7. As with writing, when you are learning to produce graphs it is useful to look critically at a wide range of graphs produced by other people.
+\begin{figure}[H]
+    \includegraphics[width=7.7cm]{grafiek.png}
+    \caption{Accuracy and Loss versus batch}
+\end{figure}
 
-Graphs are not the answer to everything. Sometimes it is better to present results in a table. This is certainly the case if precise numeric values are important, or in the case of very small numbers of data points. Sometimes it is sufficient to discuss the results in the text, certainly if the qualitative form of the results is more important than the precise quantitative values.
+\subsection{Optimizations}
 
-In all cases, you must show whether or not your results are statistically significant. In graphs this is done using box plots, reliability intervals or error bars. In tables it is useful to give reliability intervals and/or standard deviations, etc. When discussing your results you must also clearly explain which statistical tests you used and why they are valid tests to use.
+Optimizations were imperative to improving training speed and accuracy.
+For example, switching to cross entropy loss was better suited for the values than 1 as mean squared loss
+would make decimal values actually smaller. Additionally, using GELU instead of RELU helped reduce
+vanishing gradients. Something to realize is that the images are always centered and therefore the
+outer edge nodes should have no activation. Pruning out those values helped improve computer time.
+The most vital improvement was the Adam optimizer with two moments that accelerated convergence. All of 
+this all together trained on 1 epoch resulted a peak accuracy of 92$\sim$\%.
 
-\subsection{The conclusion and discussion}\label{sec:_conclusion_discussion}
-In the conclusion and discussion you describe the consequences of your findings, obviously in the context of your research question. As mentioned above, the introduction, together with the conclusion and discussion, must form a mini-article that can be read on a stand-alone basis. Therefore you should somehow include all your key findings in this section. Clearly, there is no need to repeat graphs and tables, but it is essential to summarize your findings in words.
-
-The repetition will occur when you explain what the results mean and how they should be interpreted. You should take the reader by the hand, as it were, by explaining  how each result is relevant to the research question and to other work on the subject.  This discussion may serve as an argumentation for a short and (hopefully) powerful message: the ultimate conclusion. Obviously, there may be more than one conclusion that can be drawn from your results.
-
-In the discussion, the conclusion can be placed in the broader context of the academic discussion to which the presented work contributes. This is also the place to make suggestions for future research.
-
-Possibilities for future research are sometimes (but not usually in a Bachelor's thesis) presented in a separate section.  In this section, keen young academics at the start of their career have the tendency to suggest how the system can be made even more complex, especially if  their results were disappointing. But remember that the reverse may be true: perhaps the system was too complex, and simplification would provide greater insight. Suggestions like these should always be made with the original research question in mind, not simply because it is enjoyable to play with complex systems. When you've done an experiment, don't simply suggest to use more subjects in a next experiment to increase the power of the experiment. Really large effects in the real world should have shown in your experiment even with a relatively small sample. Don't confuse significance with relevance!
-
-\subsection{Acknowledgements and related matters}\label{sec:_acknowledgements}
-Acknowledgements etc. are usually only appropriate in texts that are longer than a Bachelor's thesis. It is acceptable to include acknowledgements in a Master's thesis, and for books and PhD theses it is standard. Parents and other loved ones are often very flattered to be mentioned in acknowledgements. It is not necessary to mention the supervisor in acknowledgements in texts below the level of a doctoral thesis. The supervisor is mentioned anyway. Supervisors may be embarrassed to be mentioned in the acknowledgements of a Master's thesis (since supervision is simply part of their work), but tastes differ and it is therefore a good idea to discuss this with your supervisor.
-
-Generally speaking, a foreword is not required in a thesis. A foreword usually says something about the reason for the work and about how the work was carried out. It is best to leave this out of a Bachelor's or Master's thesis unless there is something exceptional to report.
-
-\subsection{The bibliography}\label{sec:_the_bibliography}
-The format for references is described in Section 4.9. Obviously, it is also important to know when references are needed, and to which sources. References are always required when you use other people’s ideas or when you use text or illustrations that are not your own. When describing a system, references must be included when you are explaining the various choices made. Choices of this sort must be based on something – preferably a sound knowledge of what other researchers have already tried. Obviously, in your introduction you should include references to similar work, but without interrupting the flow of your account. Sometimes useful, but very tiring to read, are the literature overviews that summarize a great deal of other work but do not really relate it to the author’s own work. In the conclusion, after all, full reference can be made to similar conclusions drawn by fellow scientists or academics.
-
-A practical problem that may occur is deciding precisely which source to refer to. Should you refer to the person who originally discovered something, or to the textbook that gives a much clearer explanation of what it is about? Probably the simplest solution is to refer to both. On balance, it is better to over-reference than to under-reference, but be careful about referring to original work that will be difficult for the reader to find. You should be open about the fact that you have not read something, for example by including a reference in the following form: (\citealp{schwartz97}, as cited in \citealp{berrah99}). In the reference list you then refer to both \citetext{\citeauthor{schwartz97}, without the cited bit, and \citeauthor{berrah99}}.
+\begin{figure}[H]
+    \includegraphics[width=7.7cm]{graph2.png}
+    \caption{Accuracy and Loss versus batch}
+\end{figure}

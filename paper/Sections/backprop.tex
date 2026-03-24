@@ -45,37 +45,38 @@ This is basically a job scheduling problem so topological sort will be the perfe
 Topological sort works by applying a post-order depth first search on a directed acyclic graph 
 and reversing the list. This can easily be done using a recursive formula to completely search each branch. Reversing should be extremely simple with a library.
 
-\begin{algorithm}
-\caption{Topological Sort}\label{alg:cap}
-    \begin{algorithmic}
-        \REQUIRE $n \geq 0$
-        \ENSURE $y = x^n$
-        \STATE $y \gets 1$
-        \STATE $X \gets x$
-        \STATE $N \gets n$
-        \WHILE{$N \neq 0$}
-            \IF{$N$ is even}
-                \STATE $X \gets X \times X$
-                \STATE $N \gets \frac{N}{2}$  \COMMENT{This is a comment}
-            \ELSIF{$N$ is odd}
-                \STATE $y \gets y \times X$
-                \STATE $N \gets N - 1$
-            \ENDIF
-        \ENDWHILE
-    \end{algorithmic}
-\end{algorithm}
-
-% \begin{algorithm}[H]
-% \caption{DFS for Topological Sort}
-% \begin{algorithmic}
-% \PROCEDURE{DFS}{v, topo, visited}
-%     \IF{v $\notin$ visited}
-%         \STATE  \text{visited} $\gets$ \text{visited} $\cup \ \{v\}$
-%         \FORALL{child $\in$ v.prev\_children}
-%             \STATE \CALL{DFS}{child, topo, visited}
-%         \ENDFOR
-%         \STATE \text{append}(topo, v)
-%     \ENDIF
-% \ENDPROCEDURE
-% \end{algorithmic}
+% \begin{algorithm}
+% \caption{Topological Sort}\label{alg:cap}
+%     \begin{algorithmic}
+%         \REQUIRE $n \geq 0$
+%         \ENSURE $y = x^n$
+%         \STATE $y \gets 1$
+%         \STATE $X \gets x$
+%         \STATE $N \gets n$
+%         \WHILE{$N \neq 0$}
+%             \IF{$N$ is even}
+%                 \STATE $X \gets X \times X$
+%                 \STATE $N \gets \frac{N}{2}$  \COMMENT{This is a comment}
+%             \ELSIF{$N$ is odd}
+%                 \STATE $y \gets y \times X$
+%                 \STATE $N \gets N - 1$
+%             \ENDIF
+%         \ENDWHILE
+%     \end{algorithmic}
 % \end{algorithm}
+
+\begin{algorithm}[H]
+\caption{DFS for Topological Sort}
+\label{alg:dfs_topo}
+\begin{algorithmic}
+\Procedure{DFS}{$v, topo, visited$}
+    \If{$v \notin visited$}
+        \State $visited \gets visited \cup \{v\}$
+        \ForAll{$child \in v.prev\_children$}
+            \State \Call{DFS}{$child, topo, visited$}
+        \EndFor
+        \State \text{append}($topo, v$)
+    \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}

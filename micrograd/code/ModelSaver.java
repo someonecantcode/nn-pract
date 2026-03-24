@@ -2,6 +2,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 import nnlib.*;
 
@@ -32,5 +33,15 @@ public class ModelSaver {
             writer.print(v.data + " ");
         }
         System.out.println("MODEL SAVED");
+    }
+
+    public void saveAccuracy(ArrayList<Double> accuracy) throws FileNotFoundException {
+        File fout = new File(MODEL_DIRECTORY + "graph");
+        PrintStream writer = new PrintStream(fout);
+
+        for (double data : accuracy) {
+            writer.print(data + " ");
+        }
+        System.out.println("accuracy saved");
     }
 }
