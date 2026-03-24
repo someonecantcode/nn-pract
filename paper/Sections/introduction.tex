@@ -1,0 +1,9 @@
+% Introduction
+Instead of using matrices and linear algebra to replicate 
+a mulitlayer perceptron, we use value nodes. We define each
+fundamental operator---add, multiply, exponentialization, and trigonometric functions--- 
+alongside their partial derivatives with the chain rule.
+These individual value nodes will additionally hold previous children, creating a
+directed acyclic graph. All of this together recreates an autogradient engine
+vital for back propagation. In whole, we can create a multilayer perceptron, train it on 
+the MNIST dataset, and obtain promising results.

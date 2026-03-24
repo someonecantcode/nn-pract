@@ -1,0 +1,78 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Official template for the Bachelor's Thesis of the Bachelor AI      %%
+%% program of the University of Groningen (NL).                        %%
+%%                                                                     %%
+%% Current version: March 2026                                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt,a4paper,twocolumn]{article}
+\usepackage{Styling}
+\graphicspath{{./Images}}
+
+
+\title{\vspace{-0.5in}{\bfseries\scshape 
+    Minilistic MNIST Utilizing Modern Optimizations
+    } \\ 
+    \vspace{1ex} 
+    \normalsize{CS 211 \#18849}\vspace{-2ex}
+}
+
+\author{
+    \normalsize{Brendan Tea, brendan.tea@bellevuecollege.edu,} \\ 
+    \normalsize{Advisor: Professor Dr. Taesik Kim}
+}
+
+\date{\vspace{-5ex}}
+
+
+\begin{document}
+
+\twocolumn[
+  \maketitle
+  \begin{@twocolumnfalse}
+    \input{./sections/abstract.tex}
+  \end{@twocolumnfalse}
+]
+
+\thispagestyle{firststyle}
+
+% \tableofcontents
+% ---------------------
+\titlespacing{\section}{0pt}{0pt}{0.25em}
+\titlespacing{\subsection}{0pt}{0pt}{0.25em}
+\setlength{\parskip}{1em}   
+\setlength{\parindent}{0pt}
+% ---------------------
+
+\section{Introduction} \label{sec:introduction}
+\input{Sections/introduction.tex}
+
+\section{Building Up}\label{sec:building}
+\input{Sections/building.tex}
+\subsection{Back Propagation}
+\input{Sections/backprop.tex}
+
+\section{MNIST}\label{sec:mnist}
+\input{Sections/mnist.tex}
+
+% \section{Layout}\label{sec:layout}
+% \input{Sections/layout.tex}
+
+\section{Conclusions}\label{sec:conclusions}
+\input{Sections/conclusions.tex}
+
+\bibliographystyle{apacite}
+\bibliography{literature_bachelorthesis}
+
+\clearpage
+
+% \begin{appendices}
+%     \section{Appendix}\label{ap:appendix}
+%     \input{Sections/appendixA.tex}
+%     \newpage
+%     \section{Multiple appendices}\label{ap:appendices}
+%     \input{Sections/appendixB.tex}
+%     \newpage
+% \end{appendices}
+
+\end{document}

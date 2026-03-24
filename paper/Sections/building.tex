@@ -1,0 +1,148 @@
+% Building
+With these operators, we can define any function atomically. To build up to
+a multilayer perceptron. A neural network is composed of layers which are composed of neurons. 
+This structure (with a non-linear function) allows the approximation of any shape it or desired behavior. 
+
+\begin{definition}[Neuron]
+    A neuron or perceptron is denoted by the following:
+
+    \begin{align*}
+        & \text{N} = \sum_{i=0}^{n} w_i x_i + b , \quad n \text{ being the input size.} \\
+        & \text{N} = 
+         \begin{bmatrix}
+            x_0 & x_1 & \cdots & x_i 
+        \end{bmatrix}
+        \begin{bmatrix}
+            w_0 \\
+            w_1 \\
+            \vdots \\
+            w_i
+        \end{bmatrix}
+            +
+        \begin{bmatrix}
+            b
+        \end{bmatrix}, \\ 
+        & \quad i \text{ being the number of inputs.}
+    \end{align*}
+\end{definition}
+
+\begin{definition}[Layer]
+    A layer of neurons or a single layer perceptron is denoted by the following:
+    \begin{equation}
+        \text{L} = 
+        \begin{bmatrix}
+        N_0 \\
+        N_1 \\
+        \vdots \\
+        N_i    
+        \end{bmatrix}, \quad i \text{ being the amount of neurons.}
+    \end{equation}
+\end{definition}
+
+\begin{definition}[MLP]
+    A multi layer perceptron has multiple layers and it is denoted by the following:
+    \begin{align*}
+         \text{MLP} &= 
+        \begin{bmatrix}
+            L_0 & L_1 & \cdots & L_i
+        \end{bmatrix} \\
+        &=
+        \begin{bmatrix}
+           \begin{bmatrix}
+                N_0 \\
+                N_1 \\
+                \vdots \\
+                N_a    
+          \end{bmatrix} 
+          &
+          \begin{bmatrix}
+                N_0 \\
+                N_1 \\
+                \vdots \\
+                N_b    
+          \end{bmatrix}
+          &
+          \cdots
+          & 
+          \begin{bmatrix}
+                N_0 \\
+                N_1 \\
+                \vdots \\
+                N_c    
+          \end{bmatrix}
+        \end{bmatrix}, \\
+        & \quad a,b,c \text{ being the size of each layer.}
+    \end{align*}
+\end{definition}
+
+Now that we have some infrastructure to work with, we have to show how 
+forward pass would work. Imagine we have a 2 layer (1 input/middle, 1 output). 
+For the input layer we shall take in two inputs and output 4. The output layer must take 
+4 and we will let it output 1.
+    
+This is how the math would work out.
+
+\begin{equation*}
+    X_0 = 
+        \begin{bmatrix}
+            x_0 \\
+            x_1
+        \end{bmatrix},
+     L_0 = 
+        \begin{bmatrix}
+            N_0 \\
+            N_1 \\
+            N_2 \\
+            N_3
+        \end{bmatrix}, 
+    N_i = 
+        \begin{bmatrix}
+            x_0 & x_1 
+        \end{bmatrix}
+        \begin{bmatrix}
+            w_0 \\
+            w_1
+        \end{bmatrix} + 
+        \begin{bmatrix}
+            b
+        \end{bmatrix}
+\end{equation*}
+
+\begin{align*}
+    L_1 = 
+        \begin{bmatrix}
+            N_0
+        \end{bmatrix},
+    N_0 &= 
+        \begin{bmatrix}
+            N_0 \\
+            N_1 \\
+            N_2 \\
+            N_3
+        \end{bmatrix}^{\top}
+        \begin{bmatrix}
+            w_0 \\
+            w_1 \\
+            w_2 \\
+            w_3
+        \end{bmatrix} \\
+        &=
+        \begin{bmatrix}
+            N_0 & N_1 & N_2 & N_3
+        \end{bmatrix}
+        \begin{bmatrix}
+            w_0 \\
+            w_1 \\
+            w_2 \\
+            w_3
+        \end{bmatrix} + 
+        \begin{bmatrix}
+            b
+        \end{bmatrix}
+\end{align*}
+
+basically linear regression but on steroids. 
+We will forward pass inputs and receive an output. With the output, we will calculate the loss and
+run back propagation for the individual gradients and apply gradient descent on the parameters to reduce the loss value.
+In turn, this will result in a model that is better suited toward the result. Repeating this process will
+eventually lead to any function reaching a minimum.

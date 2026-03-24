@@ -1,0 +1,81 @@
+To actually train and get the wanted behavior from a function such as a MLP, 
+we must obtain the direction of largest or smallest growth 
+otherwise known as the gradient of the parameters. With the gradient,
+we can use that to move in a direction of lower loss. With a little bit
+of multi-variable calculus and the chain rule, we can obtain all of the local derivatives
+and in turn, their gradients. Here is the math behind it.
+
+The most rudimentary case is to imagine taking derivatives at the root.
+\begin{equation}
+    \frac{\partial L}{\partial c} = \cancelto{1}{\frac{\partial L }{\partial L }} \frac{\partial L}{\partial c} = \frac{\partial L}{\partial c}
+\end{equation}
+
+However, imagine if we have a function of two variables with one being a composite.
+In this example, it should become clear that we will always calculate the outer derivative and multiply it by the inner derivative.
+At the start, we will simply take it's derivative and multiply it by one. 
+
+\begin{definition}[Chain Rule]
+    With that, back propagation is defined by the chain rule.
+    \begin{align}
+        & L(c, d) = c + d, \quad  c(a) = a+b; \\
+        \Longrightarrow  & \boxed{\frac{\partial L}{\partial a} = \frac{\partial L }{\partial c } \frac{\partial c}{\partial a}}
+    \end{align}
+
+    Acculumating gradients:
+    \begin{align}
+        & L(c, d) = c(a) + d(a), \quad c(a) = a + b, \ d(a) = a + c\\
+       \Longrightarrow & \boxed{\frac{\partial L}{\partial a} =\frac{\partial L}{\partial c}\frac{\partial c}{\partial a}+\frac{\partial L}{\partial d}\frac{\partial d}{\partial a}}
+    \end{align}
+\end{definition}
+
+\begin{definition}[Gradient]
+    We can take this farther and define the gradient of the loss function.
+        \begin{equation}
+        \boxed{\nabla L = \left\langle \frac{\partial L}{\partial a_0}, \dots \frac{\partial L}{\partial a_i} \right\rangle}
+    \end{equation}
+\end{definition}
+
+This is a very powerful tool and the next thing to tackle is how we order our function 
+so that we can create an algorithm to start from the root and propagate back.
+
+\subsection{Topological Sort}
+
+With back propagation, we will need to be able to know what order to propagate. 
+This is basically a job scheduling problem so topological sort will be the perfect algorithm for this.
+Topological sort works by applying a post-order depth first search on a directed acyclic graph 
+and reversing the list. This can easily be done using a recursive formula to completely search each branch. Reversing should be extremely simple with a library.
+
+\begin{algorithm}
+\caption{Topological Sort}\label{alg:cap}
+    \begin{algorithmic}
+        \REQUIRE $n \geq 0$
+        \ENSURE $y = x^n$
+        \STATE $y \gets 1$
+        \STATE $X \gets x$
+        \STATE $N \gets n$
+        \WHILE{$N \neq 0$}
+            \IF{$N$ is even}
+                \STATE $X \gets X \times X$
+                \STATE $N \gets \frac{N}{2}$  \COMMENT{This is a comment}
+            \ELSIF{$N$ is odd}
+                \STATE $y \gets y \times X$
+                \STATE $N \gets N - 1$
+            \ENDIF
+        \ENDWHILE
+    \end{algorithmic}
+\end{algorithm}
+
+% \begin{algorithm}[H]
+% \caption{DFS for Topological Sort}
+% \begin{algorithmic}
+% \PROCEDURE{DFS}{v, topo, visited}
+%     \IF{v $\notin$ visited}
+%         \STATE  \text{visited} $\gets$ \text{visited} $\cup \ \{v\}$
+%         \FORALL{child $\in$ v.prev\_children}
+%             \STATE \CALL{DFS}{child, topo, visited}
+%         \ENDFOR
+%         \STATE \text{append}(topo, v)
+%     \ENDIF
+% \ENDPROCEDURE
+% \end{algorithmic}
+% \end{algorithm}

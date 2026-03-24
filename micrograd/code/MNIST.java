@@ -35,7 +35,7 @@ public class MNIST {
 
         Value[] params = mlp.parameters(); // caching it
         saver.loadModel("MNIST_MODEL1", params);
-        
+
         System.out.println(params.length);
         m = new double[params.length];
         v = new double[params.length];
@@ -53,6 +53,8 @@ public class MNIST {
         int counter = 0;
         int total_correct = 0;
         double loss;
+
+        offsetData(howMany);
         do {
             mlp.zeroGrad();
             // get Images + Labels;
@@ -96,6 +98,13 @@ public class MNIST {
                 total_correct = 0;
             }
         } while (step < TOTAL_EPOCS * 50); // loss >= 1e-3
+    }
+
+    public static void offsetData(int howMany) throws IOException {
+        for (int i = 0; i < (int) Math.random() * 1000; i++) {
+            getLabels(howMany);
+            getImages(howMany);
+        }
     }
 
     public static Value[][] getLabels(int howMany) throws IOException {
