@@ -1,13 +1,15 @@
 % Contents
 First, we initialize an MLP with an input size and layer params. The layer params are 
-simply the size of each layer. 
+simply the size of each layer. For this case, we will have a 748 size input layer, two 16 size
+hidden layers, and a 10 size output layer.
 
 After that, we will run a training loop. A training loop is simply composed of these fundamental steps:
 \begin{enumerate}
-    \item Zero out all of the local gradients. 
-    \item Feedforward the input through the MLP an obtain an output.
+    \item Zeroing out all of the local gradients. 
+    \item Feedforward the input through the MLP to obtain an output.
     \item Calculate the loss with the output.
     \item Potentially reduce the loss with gradient descent.
+    \item Repeat until satisfied
 \end{enumerate}
 
 % Repeat with a new batch of data.
@@ -24,7 +26,7 @@ After that, we will run a training loop. A training loop is simply composed of t
 % mean squared loss, and cross entropy loss. 
 
 % Now we must reduce the loss as much as possible which is in the direction of the gradients. We run back 
-% propogration through each operaiton to obtain all the local derivatives. Think of the local derviatives as 
+% propogation through each operaiton to obtain all the local derivatives. Think of the local derviatives as 
 % a ratio of how much each individual component helps toward the output. Almost like ingredients toward a dish.
 % After, simply adjust the weights and biases in the direction of the gradient. If we want to increase the value,
 % positive gradient and decrease the value, negative gradient. Comes in theory with the directional derivative and 
@@ -33,14 +35,14 @@ After that, we will run a training loop. A training loop is simply composed of t
 \subsection{MNIST training loop}
 
 In the case with the MNIST dataset, we go through each component of the training loop one by one and build it. First we obtain the data
-as a 784 (28 x 28 image) vector and normalize every value which is to divide by 255. We obtain this number 
+as a 784 (28 x 28 image) vector and normalize every value by a factor of $\frac{1}{255}$. We obtain this number 
 because the data is in the form of brightness values from 0-255 hence the normalization factor. We additionally obtain 
 the proper correct label to check for the loss function. Now, feed forward and obtain an output vector. I decided for an 10 size output vector for each number from 0-9. We run this
 softmax to gain a "percentage" distrubution of numbers and to clamp them from 0-1. 
 
-I implemented both mean squared and cross entropy loss. In comparison with the one-hot label, we can compare that with our 10 size
-output vector. Mean squared simply sums all of the the squared difference between each index and normalizing it with the size. 
-(Hence the name mean square.) Cross entropy takes the sum of the expected value multiplied by the log of the predicted output value.
+I implemented both mean squared and cross entropy loss. When the data is used to calculate loss, we assign the label to a one-hot vector
+so that we can compare that with our 10 size output vector. Mean squared simply sums all of the the squared difference between each index and normalizing it with the size. 
+Cross entropy takes the sum of the expected value multiplied by the log of the predicted output value.
 In the following section, we can compare both loss functions and their effectiveness.
 
 Given here are the algorithms.
@@ -63,22 +65,24 @@ Running the training loop resulted in slow convergence in loss and a peak accura
 around 92$\sim$\%. Looking at the softmax output vector, it seems to have low confidence in 
 its choices.
 
-\begin{figure}[H]
+\begin{figure}
     \includegraphics[width=7.7cm]{graph1.png}
     \caption{Accuracy and Loss versus batch}
+    \vspace{-15pt}
 \end{figure}
 
 \subsection{Optimizations}
 
-Optimizations were imperative to improving training speed and accuracy.
-For example, switching to cross entropy loss was better suited for the values than 1 as mean squared loss
-would make decimal values actually smaller \cite{Mao2023crossentropy}. Additionally, using GELU instead of RELU helped reduce
+Optimizations were imperative to improving training speed and accuracy. The most important weren't actually machine learning based. It was implementing caching of large arrays and reducing recursive stacks
+in the back propagation algorithm. This massively improved compute time almost tenfold. With faster training, we could
+spot plateaus more notably. This led to switching to cross entropy loss as it is more suited for values less than 1 as compared together
+mean squared loss which make decimal values actually smaller \cite{Mao2023crossentropy}. Additionally, using GELU instead of RELU helped reduce
 vanishing gradients \cite{hendrycks2016gelu}. Something to realize is that the images are always centered and therefore the
 outer edge nodes should have no activation. Pruning out those values helped improve computer time.
 The most vital improvement was the Adam optimizer with two moments that accelerated convergence (\cite{kingma2017adam}). All of 
-this all together trained on 1 epoch resulted a peak accuracy of 92$\sim$\%.
+this all together trained on 1 epoch resulted a peak accuracy of 97$\sim$\%.
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \includegraphics[width=7.7cm]{graph2.png}
     \caption{Accuracy and Loss versus batch}
 \end{figure}

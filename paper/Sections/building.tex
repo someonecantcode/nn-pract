@@ -1,5 +1,5 @@
 % Building
-With these operators, we can define any function atomically. To build up to
+With these operators, we can define any function atomically and build up to
 a multilayer perceptron. A neural network is composed of layers which are composed of neurons. 
 This structure (with a non-linear function) allows the approximation of any shape it or desired behavior. 
 
@@ -141,8 +141,7 @@ This is how the math would work out.
         \end{bmatrix}
 \end{align*}
 
-basically linear regression but on steroids. 
-We will forward pass inputs and receive an output. With the output, we will calculate the loss and
+After forward passing inputs, we will receive an output matrix. With the output, we will calculate the loss and
 run back propagation for the individual gradients and apply gradient descent on the parameters to reduce the loss value.
-In turn, this will result in a model that is better suited toward the result. Repeating this process will
-eventually lead to any function reaching a minimum.
+In turn, this will result in a model that is better suited toward a desired result. Repeating this process will
+eventually lead to any function reaching a minimum loss.
