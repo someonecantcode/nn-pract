@@ -5,19 +5,21 @@ from torch.nn import functional as F
 
 # hyperparameters
 block_size = 16
-batch_size = 32
-max_iters = 1000
+batch_size = 64
+epochs = 50
+max_iters =  epochs * (205411 // batch_size) # len(Xtr) 205411 batches for 1 epoch
 eval_interval = max_iters // 5
-lr = 4e-4
+learning_rate = 4e-4
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 emb_size = 32
 n_hidden = 64
 n_flattens = block_size.bit_length() - 1  # n.bit_length() - 1 = log2(n)
+dropout = 0.2
 # ------------
 
 
-words = open('names.txt', 'r').read().splitlines()
+words = open('../data/names.txt', 'r').read().splitlines()
 
 chars = sorted(list(set(''.join(words))))
 stoi = { ch:i+1 for i,ch in enumerate(chars)}
@@ -44,6 +46,7 @@ def build_dataset(words):
     
     X = torch.tensor(X)
     Y = torch.tensor(Y)
+    X, Y = X.to(device), Y.to(device)
     return X, Y
 
 n1 = int(0.9*len(words))
@@ -59,8 +62,6 @@ def get_batch(split):
     ix = torch.randint(low=0, high=dataX.shape[0], size=(batch_size, ))
     x = torch.stack([dataX[i] for i in ix])
     y = torch.stack([dataY[i] for i in ix])
-
-    x, y = x.to(device), y.to(device)
     return x, y
 
 # layers
@@ -90,11 +91,12 @@ class Flatten(nn.Module):
         return idx
 
 class DilatedLayer(nn.Module):
-    def __init__(self, fan_in, factor=1):
+    def __init__(self, fan_in, factor):
         super().__init__()
         self.net = nn.Sequential(
             Flatten(factor),
             Linear(fan_in, n_hidden, bias=False),
+            nn.Dropout(dropout),
             nn.Tanh()
         )
 
@@ -168,24 +170,42 @@ class WaveNet(nn.Module):
         return out
 
 # training loop
-model = WaveNet()
-model.to(device=device)
-model.load_state_dict(torch.load("parametersV3.pt", weights_only=True))
-print(sum(p.numel() for p in model.parameters()))
+if __name__ == '__main__':
+    model = WaveNet()
+    model.to(device=device)
+    model.load_state_dict(torch.load("b16e32h64.pt", weights_only=True))
+    print(sum(p.numel() for p in model.parameters()))
 
-optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    if torch.cuda.is_available() and torch.cuda.get_device_capability(device)[0] >= 7:
+        model = torch.compile(model)
+    else:
+        print("Triton only supports devices of CUDA Capability >= 7.0")
 
-for iter in range(max_iters):
-    Xb, Yb = get_batch('train')
-    logits, loss = model(Xb, Yb)
+    for iter in range(max_iters):
+        Xb, Yb = get_batch('train')
+        logits, loss = model(Xb, Yb)
 
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
 
-    if iter % eval_interval == 0 or iter == max_iters - 1:
-        print(loss.item())
+        if iter % eval_interval == 0 or iter == max_iters - 1:
+            print(loss.item())
 
-torch.save(model.state_dict(), "parametersV3.pt")
-for _ in range(5):
-    print("".join(model.generate()))
+    torch.save(model.state_dict(), "b16e32h64.pt")
+    for _ in range(5):
+        print("".join(model.generate()))
+
+# loss eval
+@torch.no_grad()
+def split_loss(split):
+    x, y = {
+        'train': (Xtr, Ytr),
+        'val': (Xval, Yval)
+    }[split]
+    _, loss = model(x, y)
+    print(split, loss.item())
+
+split_loss('train')
+split_loss('val')
