@@ -15,7 +15,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 emb_size = 32
 n_hidden = 64
 n_flattens = block_size.bit_length() - 1  # n.bit_length() - 1 = log2(n)
-dropout = 0.2
+# dropout = 0.2
 # ------------
 
 
@@ -96,7 +96,7 @@ class DilatedLayer(nn.Module):
         self.net = nn.Sequential(
             Flatten(factor),
             Linear(fan_in, n_hidden, bias=False),
-            nn.Dropout(dropout),
+            # nn.Dropout(dropout),
             nn.Tanh()
         )
 
@@ -198,14 +198,14 @@ if __name__ == '__main__':
         print("".join(model.generate()))
 
 # loss eval
-@torch.no_grad()
-def split_loss(split):
-    x, y = {
-        'train': (Xtr, Ytr),
-        'val': (Xval, Yval)
-    }[split]
-    _, loss = model(x, y)
-    print(split, loss.item())
+# @torch.no_grad()
+# def split_loss(split):
+#     x, y = {
+#         'train': (Xtr, Ytr),
+#         'val': (Xval, Yval)
+#     }[split]
+#     _, loss = model(x, y)
+#     print(split, loss.item())
 
-split_loss('train')
-split_loss('val')
+# split_loss('train')
+# split_loss('val')
