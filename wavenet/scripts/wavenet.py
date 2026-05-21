@@ -6,7 +6,7 @@ from torch.nn import functional as F
 # hyperparameters
 block_size = 16
 batch_size = 64
-epochs = 50
+epochs = 1
 max_iters =  epochs * (205411 // batch_size) # len(Xtr) 205411 batches for 1 epoch
 eval_interval = max_iters // 5
 learning_rate = 4e-4
@@ -96,11 +96,7 @@ class DilatedLayer(nn.Module):
         self.net = nn.Sequential(
             Flatten(factor),
             Linear(fan_in, n_hidden, bias=False),
-<<<<<<< HEAD
             # nn.Dropout(dropout),
-=======
-            nn.Dropout(dropout),
->>>>>>> 1500dc18e600f79d1bba2603a561c83974140409
             nn.Tanh()
         )
 
@@ -156,7 +152,7 @@ class WaveNet(nn.Module):
 
         return logits, loss
 
-    def generate(self, idx=None,  max_new_tokens=100):
+    def generate(self, idx=None, temp=1, max_new_tokens=100):
         if idx == None:
             idx = torch.zeros((1, block_size), dtype=int, device=device)
 
@@ -164,7 +160,7 @@ class WaveNet(nn.Module):
         for _ in range(max_new_tokens):
             logits, _ = self(idx)
             probs = F.softmax(logits, dim=1)
-            ix = torch.multinomial(probs, num_samples=1).item()
+            ix = torch.multinomial(probs / temp, num_samples=1).item()
 
             idx = torch.cat((idx[:, 1:], torch.tensor([[ix]], device=device)), dim=1)
 
@@ -201,29 +197,15 @@ if __name__ == '__main__':
     for _ in range(5):
         print("".join(model.generate()))
 
-# loss eval
-<<<<<<< HEAD
-# @torch.no_grad()
-# def split_loss(split):
-#     x, y = {
-#         'train': (Xtr, Ytr),
-#         'val': (Xval, Yval)
-#     }[split]
-#     _, loss = model(x, y)
-#     print(split, loss.item())
+    # loss eval
+    @torch.no_grad()
+    def split_loss(split):
+        x, y = {
+            'train': (Xtr, Ytr),
+            'val': (Xval, Yval)
+        }[split]
+        _, loss = model(x, y)
+        print(split, loss.item())
 
-# split_loss('train')
-# split_loss('val')
-=======
-@torch.no_grad()
-def split_loss(split):
-    x, y = {
-        'train': (Xtr, Ytr),
-        'val': (Xval, Yval)
-    }[split]
-    _, loss = model(x, y)
-    print(split, loss.item())
-
-split_loss('train')
-split_loss('val')
->>>>>>> 1500dc18e600f79d1bba2603a561c83974140409
+    split_loss('train')
+    split_loss('val')

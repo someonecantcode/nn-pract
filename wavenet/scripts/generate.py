@@ -2,8 +2,9 @@ import torch
 from wavenet import WaveNet 
 
 block_size = 16
-total_samples = 5
-prompt = "eile"
+total_samples = 10
+temp = 3
+prompt = "e"
 assert (len(prompt) <= block_size), "context too large"
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -30,4 +31,4 @@ context = context[:block_size - len(prompt)] + encode(prompt)
 context = torch.tensor([context])
 context = context.to(device)
 for _ in range(total_samples):
-    print(prompt + "".join(model.generate(idx=context)))
+    print(prompt + "".join(model.generate(idx=context, temp=temp)))
