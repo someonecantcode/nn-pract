@@ -96,7 +96,11 @@ class DilatedLayer(nn.Module):
         self.net = nn.Sequential(
             Flatten(factor),
             Linear(fan_in, n_hidden, bias=False),
+<<<<<<< HEAD
             # nn.Dropout(dropout),
+=======
+            nn.Dropout(dropout),
+>>>>>>> 1500dc18e600f79d1bba2603a561c83974140409
             nn.Tanh()
         )
 
@@ -198,6 +202,7 @@ if __name__ == '__main__':
         print("".join(model.generate()))
 
 # loss eval
+<<<<<<< HEAD
 # @torch.no_grad()
 # def split_loss(split):
 #     x, y = {
@@ -209,3 +214,16 @@ if __name__ == '__main__':
 
 # split_loss('train')
 # split_loss('val')
+=======
+@torch.no_grad()
+def split_loss(split):
+    x, y = {
+        'train': (Xtr, Ytr),
+        'val': (Xval, Yval)
+    }[split]
+    _, loss = model(x, y)
+    print(split, loss.item())
+
+split_loss('train')
+split_loss('val')
+>>>>>>> 1500dc18e600f79d1bba2603a561c83974140409
