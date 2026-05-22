@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import random
 from torch.nn import functional as F
 
 
@@ -17,10 +18,10 @@ n_hidden = 64
 n_flattens = block_size.bit_length() - 1  # n.bit_length() - 1 = log2(n)
 # dropout = 0.2
 # ------------
-
+random.seed(42)
 
 words = open('../data/names.txt', 'r').read().splitlines()
-
+random.shuffle(words)
 chars = sorted(list(set(''.join(words))))
 stoi = { ch:i+1 for i,ch in enumerate(chars)}
 stoi['.'] = 0
