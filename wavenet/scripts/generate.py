@@ -24,11 +24,13 @@ decode = lambda l: ''.join([itos[i] for i in l])
 
 model = WaveNet()
 model.to(device=device)
-model.load_state_dict(torch.load("b16e32h64.pt", weights_only=True))
+model.load_state_dict(torch.load("bnb16e32h64.pt", weights_only=True))
 
 context = [0] * block_size
 context = context[:block_size - len(prompt)] + encode(prompt) 
 context = torch.tensor([context])
 context = context.to(device)
+
+model.eval()
 for _ in range(total_samples):
     print(prompt + "".join(model.generate(idx=context, temp=temp)))

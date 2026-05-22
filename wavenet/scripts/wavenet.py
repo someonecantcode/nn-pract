@@ -6,10 +6,10 @@ from torch.nn import functional as F
 # hyperparameters
 block_size = 16
 batch_size = 64
-epochs = 1
+epochs = 100
 max_iters =  epochs * (205411 // batch_size) # len(Xtr) 205411 batches for 1 epoch
 eval_interval = max_iters // 5
-learning_rate = 4e-4
+learning_rate = 2e-4
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 emb_size = 32
@@ -86,29 +86,35 @@ class Flatten(nn.Module):
     def forward(self, idx):
         B, T, C = idx.shape
         idx = idx.view(B, T//self.factor, C*self.factor)
-        if idx.shape[1] == 1:
-            idx = idx.squeeze(dim=1)
+        # if idx.shape[1] == 1:
+        #     idx = idx.squeeze(dim=1)
         return idx
 
 class DilatedLayer(nn.Module):
     def __init__(self, fan_in, factor):
         super().__init__()
-        self.net = nn.Sequential(
+        self.squash = nn.Sequential(
             Flatten(factor),
-            Linear(fan_in, n_hidden, bias=False),
-            # nn.Dropout(dropout),
-            nn.Tanh()
+            Linear(factor * fan_in, n_hidden, bias=False),
         )
+        self.bn = nn.BatchNorm1d(n_hidden)
+        self.act = nn.Tanh()
 
     def forward(self, idx):
-        return self.net(idx)
+        x = self.squash(idx)
+        B, T, C = x.shape
+
+        x = x.view(B*T, C) # B, T, C -> B*T, C
+        x = self.bn(x)
+        x = x.view(B, T, C)
+        return self.act(x)
     
 class DilatedCasualConvolutions(nn.Module):
     def __init__(self, n_flattens=1):
         super().__init__()
         factor = int(block_size **  (1/n_flattens))
         self.flattens = nn.Sequential(
-            DilatedLayer(factor * emb_size, factor), *[DilatedLayer(factor * n_hidden, factor) for _ in range(n_flattens-1)]
+            DilatedLayer(emb_size, factor), *[DilatedLayer(n_hidden, factor) for _ in range(n_flattens-1)]
         )
 
     def forward(self, idx):
@@ -143,6 +149,7 @@ class WaveNet(nn.Module):
         x = tok_emb + pos_emb
         # x = x.view(x.shape[0], -1) 
         x = self.dilated(x)
+        x = x.squeeze(dim=1)
         logits = self.unembed(x)
 
         if targets is None:
@@ -171,9 +178,10 @@ class WaveNet(nn.Module):
 
 # training loop
 if __name__ == '__main__':
+    torch.set_float32_matmul_precision("high")
     model = WaveNet()
     model.to(device=device)
-    model.load_state_dict(torch.load("b16e32h64.pt", weights_only=True))
+    model.load_state_dict(torch.load("bnb16e32h64.pt", weights_only=True))
     print(sum(p.numel() for p in model.parameters()))
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
@@ -191,9 +199,10 @@ if __name__ == '__main__':
         optimizer.step()
 
         if iter % eval_interval == 0 or iter == max_iters - 1:
-            print(loss.item())
+            print(f"step {iter}, train loss {loss.item():.4f}")
 
-    torch.save(model.state_dict(), "b16e32h64.pt")
+    torch.save(model.state_dict(), "bnb16e32h64.pt")
+    model.eval()
     for _ in range(5):
         print("".join(model.generate()))
 
