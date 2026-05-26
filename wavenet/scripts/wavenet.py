@@ -6,8 +6,8 @@ from torch.nn import functional as F
 
 # hyperparameters
 block_size = 16
-batch_size = 64
-epochs = 100
+batch_size = 256
+epochs = 3000
 max_iters =  epochs * (205411 // batch_size) # len(Xtr) 205411 batches for 1 epoch
 eval_interval = max_iters // 5
 learning_rate = 2e-4

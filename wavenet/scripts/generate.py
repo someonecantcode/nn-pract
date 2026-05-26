@@ -2,11 +2,11 @@ import torch
 from wavenet import WaveNet 
 
 block_size = 16
-total_samples = 10
-temp = 3
-prompt = "e"
-assert (len(prompt) <= block_size), "context too large"
+total_samples = 100
+temp = 1
+prompt = ""
 
+assert (len(prompt) <= block_size), "context too large"
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # ---------------------------------
