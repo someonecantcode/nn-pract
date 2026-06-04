@@ -202,7 +202,7 @@ if __name__ == '__main__':
         if iter % eval_interval == 0 or iter == max_iters - 1:
             print(f"step {iter}, train loss {loss.item():.4f}")
 
-    torch.save(model.state_dict(), "bnb16e32h64.pt")
+    torch.save(getattr(model, "_orig_mod", model).state_dict(), "bnb16e32h64.pt")
     model.eval()
     for _ in range(5):
         print("".join(model.generate()))
