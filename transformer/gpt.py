@@ -16,6 +16,7 @@ n_heads = 4
 # 1115394 total examples so 1115394 // batchsize = # of iters to get an epoch
 epoch = 1
 max_iters = epoch * (1115394 // batch_size)
+eval_interval = 5
 lr = 8e-4
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -201,7 +202,7 @@ if __name__ == "__main__":
         loss.backward()
         optimizer.step()
 
-        if iter % (max_iters // 5) == 0 or iter == max_iters - 1:
+        if iter % (max_iters // eval_interval) == 0 or iter == max_iters - 1:
             print(loss.item())
     torch.save(model.state_dict(), "em16hs40la10h4.pt")
 
