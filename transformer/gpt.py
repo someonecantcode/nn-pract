@@ -6,7 +6,7 @@ from torch.nn import functional as F
 
 # hyperparams
 block_size = 8
-batch_size = 64
+batch_size = 128
 
 n_embd = 16
 head_size = 40
@@ -14,7 +14,7 @@ n_layer = 10 # blocks
 n_heads = 4
 
 # 1115394 total examples so 1115394 // batchsize = # of iters to get an epoch
-epoch = 1
+epoch = 10
 max_iters = epoch * (1115394 // batch_size)
 eval_interval = 5
 lr = 8e-4
@@ -117,12 +117,6 @@ class batchedMultiHeadAttention(nn.Module):
 class Block(nn.Module):
     def __init__(self):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.LayerNorm(n_embd),
-            batchedMultiHeadAttention(),
-            nn.LayerNorm(n_embd),
-            FFN()
-        )
         self.ln1 = nn.LayerNorm(n_embd)
         self.multiattn = batchedMultiHeadAttention()
         self.ln2 = nn.LayerNorm(n_embd)
@@ -206,6 +200,30 @@ if __name__ == "__main__":
             print(loss.item())
     torch.save(model.state_dict(), "em16hs40la10h4.pt")
 
+
     model.eval()
+    n_iter_eval = len(val_data) // batch_size #  around (2.7 seconds per 100 n_iter_eval)
+
+    @torch.no_grad()
+    def get_total_loss():
+        out = {}
+        for split in ['train', 'val']:
+            data = train_data if split == 'train' else val_data
+            losses = torch.zeros(n_iter_eval) # calculating loss over entire epoch over batches
+            
+            for k in range(n_iter_eval):
+                ix = torch.arange(batch_size)
+                x = torch.stack([data[k+i:k+i+block_size] for i in ix])
+                y = torch.stack([data[k+i+1:k+i+block_size+1] for i in ix])
+                x, y = x.to(device), y.to(device)
+
+                _, loss = model(x, y)
+                losses[k] = loss.item()
+            out[split] = losses.mean()
+        return out
+
+    losses = get_total_loss()
+    print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
+
     cont = torch.ones((1,1), dtype=torch.long, device=device)
     print(decode(model.generate(cont, 100)[0].tolist()))
