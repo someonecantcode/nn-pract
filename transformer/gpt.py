@@ -206,6 +206,7 @@ if __name__ == "__main__":
     torch.save(getattr(model, "_orig_mod", model).state_dict(), "em16hs40la10h4.pt")
 
 
+
     model.eval()
     n_iter_eval = len(val_data) // batch_size #  around (2.7 seconds per 100 n_iter_eval)
 
