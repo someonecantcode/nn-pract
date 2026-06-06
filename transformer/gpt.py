@@ -14,8 +14,8 @@ n_layer = 6 # blocks
 n_heads = 8
 
 # 1115394 total examples so 1115394 // batchsize = # of iters to get an epoch
-epoch = 10
-max_iters = 15 # epoch * (1115394 // batch_size)
+epoch = 1
+max_iters = epoch * (1115394 // batch_size)
 eval_interval = 5
 lr = 8e-4
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
 
     model.eval()
-    n_iter_eval = len(val_data) // batch_size #  around (2.7 seconds per 100 n_iter_eval)
+    n_iter_eval = 100 # len(val_data) // batch_size #  around (2.7 seconds per 100 n_iter_eval)
 
     @torch.no_grad()
     def get_total_loss():
@@ -211,8 +211,8 @@ if __name__ == "__main__":
             out[split] = losses.mean()
         return out
 
-    # losses = get_total_loss()
-    # print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
+    losses = get_total_loss()
+    print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
 
     cont = torch.ones((1,1), dtype=torch.long, device=device)
     model.generate(cont, 100)

@@ -19,7 +19,7 @@ decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integ
 
 model = GPT()
 model.to(device)
-model.load_state_dict(state_dict=torch.load("em16hs40la10h4.pt", weights_only=True))
+model.load_state_dict(state_dict=torch.load("beefy.pt", weights_only=True))
 
 model.eval()
 # cont = torch.ones((1,1), dtype=torch.long, device=device)
