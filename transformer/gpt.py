@@ -5,17 +5,17 @@ from torch.nn import functional as F
 
 
 # hyperparams
-block_size = 8
+block_size = 64
 batch_size = 128
 
-n_embd = 16
-head_size = 40
-n_layer = 10 # blocks
-n_heads = 4
+n_embd = 512
+head_size = 64
+n_layer = 6 # blocks
+n_heads = 8
 
 # 1115394 total examples so 1115394 // batchsize = # of iters to get an epoch
 epoch = 10
-max_iters = epoch * (1115394 // batch_size)
+max_iters = 15 # epoch * (1115394 // batch_size)
 eval_interval = 5
 lr = 8e-4
 
@@ -74,30 +74,11 @@ def ScaledDotProductAttention(q, k, v):
 
     return out
     
-class Head(nn.Module):
-    def __init__(self, head_size):
-        super().__init__()
-        self.query = nn.Linear(n_embd, head_size, bias=False)
-        self.key = nn.Linear(n_embd, head_size, bias=False)
-        self.value = nn.Linear(n_embd, head_size, bias=False)
-        # self.headtoembd = nn.Linear(head_size, n_embd)
-    
-    def forward(self, x):
-        B, T, C = x.shape
-
-        q = self.query(x) 
-        k = self.key(x)   # (B,T,hs)
-        v = self.value(x)
-
-        out = ScaledDotProductAttention(q, k ,v)
-        # out = self.headtoembd(out)
-        return out # do residual at the blocks instead
-    
 class batchedMultiHeadAttention(nn.Module):
     def __init__(self):
         super().__init__()
-        self.qkv_weights = nn.Linear(n_embd, 3 * head_size, bias=False)
-        self.proj = nn.Linear(head_size, n_embd)
+        self.qkv_weights = nn.Linear(n_embd, 3 * head_size * n_heads, bias=False)
+        self.proj = nn.Linear(head_size * n_heads, n_embd)
 
     def forward(self, x):
         B, T, C = x.shape
@@ -134,8 +115,11 @@ class GPT(nn.Module):
         self.pos_emb = nn.Embedding(block_size, n_embd)
 
         self.blocks = nn.Sequential(*[Block() for _ in range(n_layer)])
-        self.ffdw = FFN()
-        self.unembed = nn.Linear(n_embd, vocab_size)
+        self.unembed = nn.Sequential(
+            nn.LayerNorm(n_embd),
+            nn.Linear(n_embd, vocab_size)
+        )
+        
 
         self.apply(self._init_weights)
 
@@ -155,8 +139,6 @@ class GPT(nn.Module):
         x = tok_emb + pos_emb
 
         x = self.blocks(x)
-        x = self.ffdw(x)
-        
         
         if targets is None:
             loss = None
@@ -187,7 +169,7 @@ if __name__ == "__main__":
     model = GPT()
     model.to(device)
 
-    model.load_state_dict(state_dict=torch.load("em16hs40la10h4.pt", weights_only=True))
+    # model.load_state_dict(state_dict=torch.load("em16hs40la10h4.pt", weights_only=True))
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
     if torch.cuda.is_available() and torch.cuda.get_device_capability(device)[0] >= 7:
         model = torch.compile(model)
@@ -204,7 +186,7 @@ if __name__ == "__main__":
 
         if iter % (max_iters // eval_interval) == 0 or iter == max_iters - 1:
             print(loss.item())
-    torch.save(getattr(model, "_orig_mod", model).state_dict(), "em16hs40la10h4.pt")
+    # torch.save(getattr(model, "_orig_mod", model).state_dict(), "em16hs40la10h4.pt")
 
 
 
@@ -229,8 +211,8 @@ if __name__ == "__main__":
             out[split] = losses.mean()
         return out
 
-    losses = get_total_loss()
-    print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
+    # losses = get_total_loss()
+    # print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
 
     cont = torch.ones((1,1), dtype=torch.long, device=device)
-    print(decode(model.generate(cont, 100)[0].tolist()))
+    model.generate(cont, 100)
