@@ -179,6 +179,7 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=1)
             ix = torch.multinomial(probs / temp, num_samples=1)
             idx = torch.cat((idx, ix), dim=1) # lol no need to cut
+            print(decode(ix[0].tolist()), end="", flush=True)
         return idx
 # -----------------------------------
 

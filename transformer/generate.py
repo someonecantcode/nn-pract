@@ -24,4 +24,4 @@ model.load_state_dict(state_dict=torch.load("em16hs40la10h4.pt", weights_only=Tr
 model.eval()
 # cont = torch.ones((1,1), dtype=torch.long, device=device)
 context = torch.tensor([encode(context)], dtype=torch.long, device=device)
-print(decode(model.generate(context, max_tokens=tokens, temp=temp)[0].tolist()))
+out = decode(model.generate(context, max_tokens=tokens, temp=temp)[0].tolist())
