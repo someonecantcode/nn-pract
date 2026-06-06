@@ -15,7 +15,7 @@ n_heads = 8
 
 # 1115394 total examples so 1115394 // batchsize = # of iters to get an epoch
 epoch = 10
-max_iters = epoch * (1115394 // batch_size)
+max_iters = 15 # epoch * (1115394 // batch_size)
 eval_interval = 5
 lr = 8e-4
 
@@ -211,8 +211,8 @@ if __name__ == "__main__":
             out[split] = losses.mean()
         return out
 
-    losses = get_total_loss()
-    print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
+    # losses = get_total_loss()
+    # print(f"train loss: {losses['train']:.4f}, val loss: {losses['val']:.4f}")
 
     cont = torch.ones((1,1), dtype=torch.long, device=device)
     model.generate(cont, 100)
