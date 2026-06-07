@@ -7,7 +7,7 @@ from torch.nn import functional as F
 # hyperparameters
 block_size = 16
 batch_size = 256
-epochs = 10
+epochs = 3000
 max_iters =  epochs * (205411 // batch_size) # len(Xtr) 205411 batches for 1 epoch
 eval_interval = max_iters // 5
 learning_rate = 2e-4
@@ -181,10 +181,7 @@ class WaveNet(nn.Module):
 if __name__ == '__main__':
     torch.set_float32_matmul_precision("high")
     model = WaveNet()
-
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-    model = model.to(device=device)
+    model.to(device=device)
     model.load_state_dict(torch.load("bnb16e32h64.pt", weights_only=True))
     print(sum(p.numel() for p in model.parameters()))
 

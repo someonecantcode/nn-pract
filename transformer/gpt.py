@@ -167,10 +167,7 @@ class GPT(nn.Module):
 
 if __name__ == "__main__":
     model = GPT()
-    
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-    model = model.to(device)
+    model.to(device)
 
     model.load_state_dict(state_dict=torch.load("beefy.pt", weights_only=True))
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
@@ -190,6 +187,8 @@ if __name__ == "__main__":
         if iter % (max_iters // eval_interval) == 0 or iter == max_iters - 1:
             print(loss.item())
             torch.save(getattr(model, "_orig_mod", model).state_dict(), "beefy.pt")
+
+
 
     model.eval()
     n_iter_eval = 100 # len(val_data) // batch_size #  around (2.7 seconds per 100 n_iter_eval)
