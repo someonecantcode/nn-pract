@@ -20,20 +20,15 @@ Used on Shakespeare `input.txt` with the following hyper parameters:
 
 
 ```text
-BENVOLIO:
-To all you to you.
+BUCKINGHAM:
+Tut, tut!
+What is my dream of custom calls.
 
-MERCUTIO:
-To-monifore he's cannot you blust up her-many by and shall thou 'not under makenan thy famous't pur vich must clas.
-
-Service, deatanant the feelings as angue.
-
-KING HENRONGHASS HENR:
-The his king, a littrent; thou mad't son to my or into the know like Rorting to sit grastan sat sabsir adrest the pouson,
-'Tis now Worth Of villed hithers:
-Be, stand bmom you,
-Whithan then, margune hasttrickent sconford, offfence molied once you to o pardon that
-O! death. When come ow'stakaubliotion's swear,
-Leds theref, on it Varrying as a do same amence restter:
-The kin inting too servagon were I do verivain nom from, He'll barnainior or child thus s
+KING RICHARD III:
+Why, then is my son-in-law, Death is mine own.
+An on his heart undone, is grown spoken like
+a toward the dissension of a doit of offenders,
+a smock where I slaid the desire of the former death
+Which should become't, but that I cannot woo love,
+I am too young; I pray you, prithee.
 ```
