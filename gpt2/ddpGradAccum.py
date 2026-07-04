@@ -7,6 +7,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from gpt import GPT
 from DataLoader import DataLoader
 
+# torchrun --standalone --nproc-per-node=8 file.py
 
 @dataclass
 class GPTConfig:
@@ -42,10 +43,8 @@ else:
     print(device)
 
 master_process = ddp_rank == 0
-print(ddp)
-print(ddp_rank)
-
-print(ddp_world_size)
+if master_process:
+    print(ddp_world_size)
 
 # -------------------------------------------------------------------------------
 ckpt_path = "ddp_4.pt"
@@ -92,7 +91,7 @@ raw_model = model.module if ddp else model
 
 fused_available = 'fused' in inspect.signature(torch.optim.AdamW).parameters
 used_fused = fused_available and 'cuda' in device
-optimizer = torch.optim.AdamW(model.parameters(), lr=model.config.lr, fused=used_fused)
+optimizer = torch.optim.AdamW(model.parameters(), lr=raw_model.config.lr, fused=used_fused)
 
 left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
 

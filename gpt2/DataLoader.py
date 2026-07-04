@@ -17,7 +17,7 @@ class DataLoader():
         self.train_data = data[:n]
         self.val_data = data[n:]
 
-        self.current_pos = self.B * self.B * gpu_rank
+        self.current_pos = self.B * self.T * gpu_rank
         if gpu_rank == 0:
             print(f"tokens: {len(self.train_data)}")
             print(f"1 epoch is {len(self.train_data) // (self.B * self.T * total_gpus)} iters")
