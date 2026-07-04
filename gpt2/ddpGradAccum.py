@@ -9,6 +9,10 @@ from DataLoader import DataLoader
 
 # torchrun --standalone --nproc-per-node=8 file.py
 
+os.environ["TORCHINDUCTOR_CACHE_DIR"] = ".inductor_cache"
+start_time = time.time()
+time_limit = 3600
+
 @dataclass
 class GPTConfig:
     batch_size: int = 32
@@ -97,40 +101,43 @@ left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
 
 # training loop 
 for step in range(left_off_step, max_iters+1): 
-    t0 = time.time()
-
-    optimizer.zero_grad(set_to_none=True)
-    loss_accum = 0.0
-    for micro_step in range(grad_accum_steps):
-        Xb, Yb = loader.next_batch('train')
-        Xb, Yb = Xb.to(device), Yb.to(device)
-        
-        with torch.autocast(device_type=device, dtype=torch.bfloat16): # slower on pascal arch
-            logits, loss = model(Xb, Yb)
-
-        loss = loss / grad_accum_steps
-        loss_accum += loss.detach()
-
-        if ddp: # wait and sync with all gpus at the end
-            model.require_backward_grad_sync = (micro_step == grad_accum_steps - 1)
-        loss.backward() # changed due to ddp wrap
-    if ddp:
-        dist.all_reduce(loss_accum, op=dist.ReduceOp.AVG)
-
-    optimizer.step() # since all gpu's have the same gradients, we are "sync" with the weights after we update as well
     
-    norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-    torch.cuda.synchronize()
-    t1 = time.time()
+    elapsed_time = time.time() - start_time
+    if elapsed_time <= time_limit:
 
-    if master_process:
-        dt = (t1 - t0) 
-        tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
-        print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
         t0 = time.time()
+        optimizer.zero_grad(set_to_none=True)
+        loss_accum = 0.0
+        for micro_step in range(grad_accum_steps):
+            Xb, Yb = loader.next_batch('train')
+            Xb, Yb = Xb.to(device), Yb.to(device)
+            
+            with torch.autocast(device_type=device, dtype=torch.bfloat16): # slower on pascal arch
+                logits, loss = model(Xb, Yb)
 
-    if master_process and (step == max_iters):
-        save_checkpoint(raw_model=raw_model, step=step)
+            loss = loss / grad_accum_steps
+            loss_accum += loss.detach()
+
+            if ddp: # wait and sync with all gpus at the end
+                model.require_backward_grad_sync = (micro_step == grad_accum_steps - 1)
+            loss.backward() # changed due to ddp wrap
+        if ddp:
+            dist.all_reduce(loss_accum, op=dist.ReduceOp.AVG)
+
+        optimizer.step() # since all gpu's have the same gradients, we are "sync" with the weights after we update as well
+        
+        norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        torch.cuda.synchronize()
+        t1 = time.time()
+
+        if master_process:
+            dt = (t1 - t0) 
+            tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
+            print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
+            t0 = time.time()
+
+        if master_process and (step == max_iters):
+            save_checkpoint(raw_model=raw_model, step=step)
 
 if ddp:
     dist.destroy_process_group()
