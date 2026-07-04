@@ -100,7 +100,7 @@ left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
 
 # training loop 
 for step in range(left_off_step, max_iters+1): 
-
+    
     elapsed_time = time.time() - start_time
     if elapsed_time <= time_limit:
 
