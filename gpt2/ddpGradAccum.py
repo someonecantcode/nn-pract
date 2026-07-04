@@ -70,7 +70,7 @@ def save_checkpoint(raw_model, step):
     }
     torch.save(checkpoint, f"ddp_{step}.pt")
 # -------------------------------------------------------------------------------
-max_iters = 3
+max_iters = 1000
 tokens_per_step = 524288
 grad_accum_steps = tokens_per_step // (GPTConfig().batch_size * GPTConfig().block_size * ddp_world_size)
 # grad_accum_steps = 16
@@ -135,8 +135,8 @@ for step in range(left_off_step, max_iters+1):
             print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
             t0 = time.time()
 
-        if master_process and (step == max_iters):
-            save_checkpoint(raw_model=raw_model, step=step)
+    if master_process:
+        save_checkpoint(raw_model=raw_model, step=step)
 
 if ddp:
     dist.destroy_process_group()
