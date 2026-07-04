@@ -1,5 +1,7 @@
 import torch
 import os
+import inspect
+import time
 import torch.distributed as dist
 from dataclasses import dataclass
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -68,9 +70,6 @@ def save_checkpoint(raw_model, step):
     }
     torch.save(checkpoint, f"ddp_{step}.pt")
 # -------------------------------------------------------------------------------
-import inspect
-import time
-
 max_iters = 3
 tokens_per_step = 524288
 grad_accum_steps = tokens_per_step // (GPTConfig().batch_size * GPTConfig().block_size * ddp_world_size)
@@ -101,7 +100,7 @@ left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
 
 # training loop 
 for step in range(left_off_step, max_iters+1): 
-    
+
     elapsed_time = time.time() - start_time
     if elapsed_time <= time_limit:
 
