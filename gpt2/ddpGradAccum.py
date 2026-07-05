@@ -135,8 +135,8 @@ for step in range(left_off_step, max_iters+1):
             print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
             t0 = time.time()
 
-    if master_process:
-        save_checkpoint(raw_model=raw_model, step=step)
+if master_process:
+    save_checkpoint(raw_model=raw_model, step=step)
 
 if ddp:
     dist.destroy_process_group()
