@@ -13,11 +13,11 @@ from DataLoader import DataLoader
 
 os.environ["TORCHINDUCTOR_CACHE_DIR"] = ".inductor_cache"
 start_time = time.time()
-time_limit = 3600*4
+time_limit = 3600
 
 @dataclass
 class GPTConfig:
-    batch_size: int = 128
+    batch_size: int = 32
     block_size: int = 256
     vocab_size: int = 50257 # tokenizer.n_vocab # 50257, 50000 merges + 256 byte + <endoftext>
     n_layer: int = 6
@@ -70,8 +70,7 @@ def save_checkpoint(raw_model, step):
     }
     torch.save(checkpoint, f"ddp_{step}.pt")
 # -------------------------------------------------------------------------------
-max_iters = 10000
-save_interval = 3
+max_iters = 1000
 tokens_per_step = 524288
 grad_accum_steps = tokens_per_step // (GPTConfig().batch_size * GPTConfig().block_size * ddp_world_size)
 # grad_accum_steps = 16
@@ -135,9 +134,15 @@ for step in range(left_off_step, max_iters+1):
             tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
             print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
             t0 = time.time()
+<<<<<<< HEAD
         
         if (iter % (max_iters // save_interval) == 0) and master_process:
 	        save_checkpoint(raw_model=raw_model, step=step)
+=======
+
+if master_process:
+    save_checkpoint(raw_model=raw_model, step=step)
+>>>>>>> parent of c597cec (settings for real training + bug fix)
 
 if ddp:
     dist.destroy_process_group()
