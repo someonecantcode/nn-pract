@@ -130,13 +130,13 @@ for step in range(left_off_step, max_iters+1):
         torch.cuda.synchronize()
         t1 = time.time()
 
-        # if master_process:
-        #     dt = (t1 - t0) 
-        #     tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
-        #     print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
-        #     t0 = time.time()
+        if master_process:
+            dt = (t1 - t0) 
+            tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
+            print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
+            t0 = time.time()
         
-        if (step % (max_iters // save_interval) == 0) and master_process:
+        if (iter % (max_iters // save_interval) == 0) and master_process:
 	        save_checkpoint(raw_model=raw_model, step=step)
 
 if ddp:
