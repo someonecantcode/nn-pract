@@ -13,5 +13,4 @@
 module load conda
 conda activate myenv
 export TORCHINDUCTOR_CACHE_DIR=".inductor_cache"
-
 torchrun --standalone --nproc-per-node=8 ddpGradAccum.py

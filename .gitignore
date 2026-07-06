@@ -1,4 +1,5 @@
 .inductor_cache
+*.pt
 ## video files 
 *.webm
 #.mp4

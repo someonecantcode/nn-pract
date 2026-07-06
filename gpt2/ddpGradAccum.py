@@ -57,9 +57,9 @@ ckpt_path = "ddp_4.pt"
 def load_checkpoint(ckpt_path, model):
     if not (os.path.exists(ckpt_path)):
         return 1
-    
+
     checkpoint = torch.load(ckpt_path, weights_only=True)
-    model.load_state_dict(checkpoint['model'] )
+    model.load_state_dict(checkpoint['model'])
 
     return checkpoint['step']
 
@@ -88,6 +88,8 @@ if torch.cuda.is_available() and torch.cuda.get_device_capability(device)[0] >= 
 else:
     print("Triton only supports devices of CUDA Capability >= 7.0")
 
+left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
+
 if ddp:
     model = DDP(model, device_ids=[ddp_local_rank]) # all reduce and deposit gradients
 raw_model = model.module if ddp else model
@@ -97,11 +99,9 @@ fused_available = 'fused' in inspect.signature(torch.optim.AdamW).parameters
 used_fused = fused_available and 'cuda' in device
 optimizer = torch.optim.AdamW(model.parameters(), lr=raw_model.config.lr, fused=used_fused)
 
-left_off_step = load_checkpoint(ckpt_path=ckpt_path, model=model)
-
 # training loop 
-for step in range(left_off_step, max_iters+1): 
-    
+for step in range(left_off_step, max_iters+1):
+
     elapsed_time = time.time() - start_time
     if elapsed_time <= time_limit:
 
@@ -111,7 +111,7 @@ for step in range(left_off_step, max_iters+1):
         for micro_step in range(grad_accum_steps):
             Xb, Yb = loader.next_batch('train')
             Xb, Yb = Xb.to(device), Yb.to(device)
-            
+
             with torch.autocast(device_type=device, dtype=torch.bfloat16): # slower on pascal arch
                 logits, loss = model(Xb, Yb)
 
@@ -125,13 +125,12 @@ for step in range(left_off_step, max_iters+1):
             dist.all_reduce(loss_accum, op=dist.ReduceOp.AVG)
 
         optimizer.step() # since all gpu's have the same gradients, we are "sync" with the weights after we update as well
-        
+
         norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         torch.cuda.synchronize()
         t1 = time.time()
-        
         if ((step % (max_iters // save_interval) == 0) or (step == max_iters)) and master_process:
-            dt = (t1 - t0) 
+            dt = (t1 - t0)
             tokens = (loader.B * loader.T * grad_accum_steps * ddp_world_size) / dt
             print(f"step: {step}, loss: {loss_accum.item():.4f}, norm: {norm:.2f}, time: {1000 * dt:.2f} ms, tok/sec: {tokens:.2f}")
             t0 = time.time()
