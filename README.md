@@ -6,10 +6,9 @@ A collective culmination of Andrej Karparthy's (<3) makemore lectures from value
 
 Current implementations:
 
-* Atomic MLP using autograd value nodes on MNIST, following [Bengio et al. 2003](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
-* Dilated Casual Convultions to generated names, following [Deepmind Wavenet 2016](https://arxiv.org/pdf/1609.03499)
-* Transformers to generate text, following [Vaswani et al. 2017](https://arxiv.org/pdf/1706.03762)
-* DiT to generate images, following [Ho et al. 2020](https://arxiv.org/pdf/2006.11239) and [Peebles et al. 2022](https://arxiv.org/pdf/2212.09748) (in prog. . .)
+* Atomic [MLP](micrograd/code/MNIST.java) using autograd value nodes on MNIST, following [Bengio et al. 2003](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+* [Dilated Casual Convultions](wavenet/scripts/wavenet.py) to generated names, following [Deepmind Wavenet 2016](https://arxiv.org/pdf/1609.03499)
+* [Transformers](gpt2/ddpGradAccum.py) to generate text, following [Vaswani et al. 2017](https://arxiv.org/pdf/1706.03762)
 
 ## Getting Started
 
@@ -31,7 +30,6 @@ pip install torch matplotlib numpy
 │   microgpt.py
 │   README.md
 │   
-├───diffusion           # Reversing Gaussian Noise using Diffusion Transformers
 ├───micrograd           # Identifying numbers from MNIST using pure nodes.
 │   ├───code
 │   │   ├───data
